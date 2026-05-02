@@ -1,0 +1,128 @@
+# --------------------------------------
+# Butterfly Theme Configuration
+# --------------------------------------
+
+# Navigation
+nav:
+  logo:
+  display_title: true
+  fixed: false
+
+menu:
+  Home: / || fas fa-home
+  Archives: /archives/ || fas fa-archive
+
+# Code Blocks
+code_blocks:
+  theme: light
+  macStyle: false
+  height_limit: false
+  word_wrap: false
+  copy: true
+  language: true
+  shrink: false
+  fullpage: false
+
+# Social
+social:
+  fab fa-github: https://github.com/Wislist || Github || '#24292e'
+
+# Image Settings
+favicon: https://picst.sunbangyan.cn/2023/12/02/db350f7061c97579e788d6f53535d0d0.jpeg
+
+avatar:
+  img: https://wilsit-img.oss-cn-guangzhou.aliyuncs.com/img/128170809_p0.jpg
+  effect: false
+
+# Banner
+disable_top_img: false
+default_top_img: https://wilsit-img.oss-cn-guangzhou.aliyuncs.com/img/128170809_p0.jpg
+
+# Post meta display
+post_meta:
+  page:
+    date_type: created
+    date_format: date
+    categories: true
+    tags: true
+    label: true
+  post:
+    date_type: created
+    date_format: date
+    categories: true
+    tags: true
+    label: true
+
+# Copyright for posts
+post_copyright:
+  enable: true
+  decode: false
+  author_href: https://wislist.github.io
+  license: CC BY-NC-SA 4.0
+  license_url: https://creativecommons.org/licenses/by-nc-sa/4.0/
+
+# Footer
+footer:
+  owner:
+    enable: true
+    since: 2023
+  custom_text: "I wish you to become your own sun, no need to rely on who's light."
+  copyright: true
+
+# Visit counting (busuanzi)
+busuanzi:
+  site_uv: true
+  site_pv: true
+  page_pv: true
+
+# Lightbox
+fancybox: true
+
+# TOC (Table of Contents)
+toc:
+  post: true
+  page: false
+  number: true
+  expand: false
+  style_simple: false
+  scroll_percent: true
+
+# Announcement
+card_announcement:
+  enable: true
+  content: "https://oyy0v0.github.io/"
+
+# Right side buttons
+rightside_scroll_percent: true
+
+# Post navigation (prev/next)
+post_pagination: true
+
+# Code Highlighting
+highlight_theme: light
+
+# Website verification
+site_verification:
+
+# PWA
+pwa:
+  enable: false
+
+# Comments (disabled by default, re-enable if needed)
+comments:
+  use:
+  text: true
+  lazyload: false
+  count: false
+
+# Inject CSS/JS (if needed)
+inject:
+  head:
+  bottom:
+
+# CDN
+CDN:
+  internal_provider: local
+  third_party_provider: jsdelivr
+  version: false
+  option:
