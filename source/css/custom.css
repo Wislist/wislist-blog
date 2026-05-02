@@ -220,3 +220,46 @@ img[loading="lazy"].loaded {
   background: var(--secondary-bg);
   border-color: var(--border-color);
 }
+
+/* ==========================================
+   主题切换按钮
+   ========================================== */
+
+.theme-toggle-btn {
+  position: fixed;
+  right: 20px;
+  bottom: 100px;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--secondary-bg);
+  border: 1px solid var(--border-color);
+  color: var(--text-color);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  box-shadow: var(--shadow-md);
+  transition: all var(--transition-normal);
+  z-index: 100;
+}
+
+.theme-toggle-btn:hover {
+  transform: scale(1.1);
+  box-shadow: var(--shadow-lg);
+}
+
+.theme-toggle-btn:active {
+  transform: scale(0.95);
+}
+
+/* 阅读时间样式 */
+.reading-time {
+  margin-left: var(--spacing-md);
+  color: var(--text-secondary);
+}
+
+.reading-time i {
+  margin-right: var(--spacing-sm);
+}
