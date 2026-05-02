@@ -131,7 +131,9 @@ lazyload:
 # Inject CSS/JS (if needed)
 inject:
   head:
+    - <link rel="stylesheet" href="/css/custom.css">
   bottom:
+    - <script src="/js/custom.js"></script>
 
 # CDN
 CDN:
