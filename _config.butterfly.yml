@@ -115,6 +115,19 @@ comments:
   lazyload: false
   count: false
 
+# Local search
+local_search:
+  enable: true
+  preload: false
+  CDN:
+
+# Lazyload
+lazyload:
+  enable: true
+  field: site
+  placeholder:
+  blur: false
+
 # Inject CSS/JS (if needed)
 inject:
   head:
