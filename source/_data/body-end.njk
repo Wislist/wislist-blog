@@ -8,3 +8,48 @@
     }
   })();
 </script>
+
+{# ===== Twikoo 评论区（仅文章页，env_id 为空时不加载） ===== #}
+{% if theme.twikoo and theme.twikoo.enable and theme.twikoo.env_id %}
+<style>
+  .post-comments {
+    margin-top: 2em;
+    padding: 1em 0 0;
+    border-top: 1px solid var(--body-bg-color);
+  }
+  .post-comments .post-comments-title {
+    font-size: 1.2em;
+    font-weight: 600;
+    margin-bottom: 1em;
+  }
+</style>
+<script>
+  (function () {
+    var ENV_ID = '{{ theme.twikoo.env_id }}';
+    if (!ENV_ID) return;
+    // 只在文章页注入
+    if (!document.querySelector('.post-body')) return;
+
+    var holder = document.createElement('div');
+    holder.className = 'post-comments';
+    holder.innerHTML = '<div class="post-comments-title">评论</div><div id="twikoo"></div>';
+
+    var anchor = document.querySelector('.post-footer') || document.querySelector('.post-body');
+    if (!anchor) return;
+    anchor.parentNode.insertBefore(holder, anchor.nextSibling);
+
+    var s = document.createElement('script');
+    s.src = '/js/twikoo.min.js';
+    s.onload = function () {
+      if (typeof twikoo === 'undefined') return;
+      twikoo.init({
+        envId: ENV_ID,
+        el: '#twikoo',
+        lang: 'zh-CN',
+        path: location.pathname
+      });
+    };
+    document.body.appendChild(s);
+  })();
+</script>
+{% endif %}

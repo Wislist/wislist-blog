@@ -11,3 +11,8 @@ _multiconfig.yml
 
 # pnpm 本地包存储
 .pnpm-store/
+
+# Twikoo 服务端依赖
+comment-server/node_modules/
+comment-server/dist/
+comment-server/.npm-cache/

@@ -109,9 +109,18 @@ footer:
 # 前置：给仓库安装 utterances App -> https://github.com/apps/utterances
 # ---------------------------------------------------------------
 utterances:
-  enable: true
+  enable: false
   repo: Wislist/wislist-blog
   # 用 pathname 作为评论标识：以后换域名，旧评论不会丢
   issue_term: pathname
   # 跟随系统深浅色
   theme: preferred-color-scheme
+
+# ---------------------------------------------------------------
+# 评论系统（Twikoo）—— 免登录，填昵称即可评论
+# env_id 填 Cloudflare Worker 地址（见 comment-server/SETUP.md）
+# 前端脚本已本地化到 source/js/twikoo.min.js，不依赖 CDN
+# ---------------------------------------------------------------
+twikoo:
+  enable: true
+  env_id: ""   # 例：https://twikoo.xxxx.workers.dev
