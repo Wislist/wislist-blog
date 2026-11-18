@@ -15,13 +15,7 @@
     }
     greet(new Date().getHours());
 
-    async function loadWeather() {
-      const controller = new AbortController();
-      const timer = setTimeout(() => controller.abort(), 10000);
-      try {
-        const response = await fetch(base + '/visitor-weather', { signal: controller.signal });
-        if (!response.ok) throw new Error('Weather unavailable');
-        const data = await response.json();
+    function renderWeather(data) {
         // localTime is already wall-clock time at the estimated location, not UTC.
         const hour = typeof data.localTime === 'string' && data.localTime.match(/^\d{4}-\d{2}-\d{2}T(\d{2}):/);
         if (hour && Number(hour[1]) < 24) greet(Number(hour[1]));
@@ -43,13 +37,40 @@
           const description = descriptions[weather.code] || '天气状况未知';
           setText('visitor-weather', description + ' · ' + Math.round(weather.temperature) + '°C · 体感 ' + Math.round(weather.apparentTemperature) + '°C');
         }
+    }
+
+    async function loadWeather() {
+      const key = 'wislist.weather.v1';
+      const status = element('visitor-weather-status');
+      try {
+        const cached = JSON.parse(sessionStorage.getItem(key) || 'null');
+        const age = cached && Date.now() - cached.savedAt;
+        if (cached && age >= 0 && age < 600000 && cached.data.weather && Number.isFinite(cached.data.weather.temperature)) {
+          // Advance the cached local wall clock instead of freezing the greeting.
+          const local = Date.parse(cached.data.localTime + 'Z');
+          if (Number.isFinite(local)) cached.data.localTime = new Date(local + age).toISOString().slice(0, 19);
+          renderWeather(cached.data);
+          status.setAttribute('aria-busy', 'false');
+          return;
+        }
+      } catch (error) { /* Storage may be unavailable; request live weather. */ }
+      const controller = new AbortController();
+      const timer = setTimeout(() => controller.abort(), 6000);
+      try {
+        const response = await fetch(base + '/visitor-weather', { signal: controller.signal });
+        if (!response.ok) throw new Error('Weather unavailable');
+        const data = await response.json();
+        renderWeather(data);
+        if (data.weather && Number.isFinite(data.weather.temperature) && Number.isFinite(data.weather.apparentTemperature)) {
+          try { sessionStorage.setItem(key, JSON.stringify({ savedAt: Date.now(), data })); } catch (error) { /* Rendering does not depend on storage. */ }
+        }
       } catch (error) {
         setText('visitor-location', '暂时无法获取位置与天气。');
         setText('visitor-weather', '天气服务暂不可用。');
         setText('visitor-location-note', '问候依据浏览器时间；不申请定位权限。');
       } finally {
         clearTimeout(timer);
-        element('visitor-weather-status').setAttribute('aria-busy', 'false');
+        status.setAttribute('aria-busy', 'false');
       }
     }
 

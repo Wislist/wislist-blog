@@ -36,17 +36,25 @@ export async function visitorRequest (request, env) {
     }
     const url = new URL('https://api.open-meteo.com/v1/forecast')
     url.search = new URLSearchParams({
-      latitude: cf.latitude, longitude: cf.longitude, timezone: 'auto',
+      latitude: Number(cf.latitude).toFixed(1), longitude: Number(cf.longitude).toFixed(1), timezone: 'auto',
       current: 'temperature_2m,apparent_temperature,weather_code,is_day'
     }).toString()
     try {
-      const response = await fetch(url, { signal: AbortSignal.timeout(6500), cf: { cacheTtl: 600, cacheEverything: true } })
+      // Cache only provider weather, never a visitor's city or location metadata.
+      const cache = caches.default
+      const cacheKey = new Request(new URL('/__weather-cache?' + url.searchParams, request.url))
+      const cached = await cache.match(cacheKey)
+      const response = cached || await fetch(url, { signal: AbortSignal.timeout(4000) })
       if (!response.ok) throw new Error('Weather service unavailable')
-      const { current } = await response.json()
+      const payload = await response.json()
+      const { current } = payload
       if (!current || !Number.isFinite(current.temperature_2m) || !Number.isFinite(current.apparent_temperature) || !Number.isInteger(current.weather_code)) {
         throw new Error('Invalid weather response')
       }
-      result.localTime = current.time || result.localTime
+      if (!cached) {
+        await cache.put(cacheKey, Response.json(payload, { headers: { 'Cache-Control': 'public, max-age=600' } }))
+      }
+      result.localTime = result.localTime || current.time || ''
       result.weather = {
         temperature: current.temperature_2m, apparentTemperature: current.apparent_temperature,
         code: current.weather_code, isDay: current.is_day === 1
