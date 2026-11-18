@@ -102,3 +102,16 @@ custom_file_path:
 # ---------------------------------------------------------------
 footer:
   since: 2023
+
+# ---------------------------------------------------------------
+# 评论系统（Utterances）
+# 评论以 GitHub Issue 形式存在本仓库，NexT 原生支持，无后端
+# 前置：给仓库安装 utterances App -> https://github.com/apps/utterances
+# ---------------------------------------------------------------
+utterances:
+  enable: true
+  repo: Wislist/wislist-blog
+  # 用 pathname 作为评论标识：以后换域名，旧评论不会丢
+  issue_term: pathname
+  # 跟随系统深浅色
+  theme: preferred-color-scheme
