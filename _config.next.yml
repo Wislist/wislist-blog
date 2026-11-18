@@ -29,6 +29,8 @@ menu:
   archives: /archives/ || fa fa-archive
   categories: /categories/ || fa fa-layer-group
   tags: /tags/ || fa fa-tags
+  资源收集: /resources/ || fa fa-bookmark
+  关于我: /about/ || fa fa-user
 
 menu_settings:
   icons: true
