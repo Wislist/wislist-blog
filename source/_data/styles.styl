@@ -2,16 +2,20 @@
 // 自定义样式
 // ===============================================================
 
-// 长代码行自动换行
-// 原因：文章里的代码多数是 Notion 导出时被压成一行（63% 超过 120 字符），
-// 不换行的话要么被裁掉，要么必须横向滚动才能看。
+// 保留源码真实换行；长行在代码块内横向滚动，不撑开移动端正文。
 figure.highlight
-  pre
-    white-space pre-wrap
-    word-break break-all
-    overflow-x auto
+  max-width 100%
+  overflow-x auto
 
-// 暗色下复制按钮默认是浅灰渐变，压在换行后的代码上像块白斑
+  pre
+    white-space pre
+    word-break normal
+    overflow-wrap normal
+
+.post-body
+  min-width 0
+
+// 暗色下避免复制按钮的浅灰渐变遮住源码。
 @media (prefers-color-scheme: dark)
   .copy-btn
     background none
@@ -22,3 +26,52 @@ figure.highlight
 
   .copy-btn:hover
     background-color rgba(255, 255, 255, .22)
+
+// 使用 NexT 色彩变量，随主题深浅色切换；不添加装饰性动画。
+.visitor-sidebar
+  margin-top 22px
+  text-align left
+  color var(--text-color)
+
+.visitor-card
+  padding 16px
+  margin-top 12px
+  border 1px solid var(--body-bg-color)
+  border-radius 8px
+  background var(--card-bg-color)
+  font-size 13px
+  line-height 1.7
+  overflow-wrap anywhere
+
+  h2
+    margin 0 0 8px
+    font-size 14px
+    font-weight 600
+    line-height 1.5
+
+  p
+    margin 5px 0
+
+  .visitor-note
+    color var(--text-color)
+    opacity .72
+    font-size 11px
+
+  dl
+    margin 12px 0 0
+
+  .visitor-stat
+    display flex
+    justify-content space-between
+    gap 12px
+    margin 6px 0
+
+  dt, dd
+    margin 0
+
+  dd
+    font-variant-numeric tabular-nums
+    text-align right
+
+  [hidden]
+    display none

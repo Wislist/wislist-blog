@@ -12,6 +12,15 @@
 - 服务端更新：在本目录执行 `npx wrangler deploy --minify`；博客配置更新仍需发布博客。
 - 服务端使用 `twikoo-func` 的 `getHtmlToText()` 提取最新评论纯文本，不再调用已移除的 `getCheerio()`。
 
+## 访客侧栏接口
+
+- 首次启用：执行 `npx wrangler d1 execute twikoo --remote --file=visitor-schema.sql`，再部署 Worker。与评论共用 D1，但使用独立的 `site_visitors`、`site_metrics` 表。
+- `GET /visitor-weather`：用 Cloudflare 的 IP 城市、经纬度估算位置，再请求 Open-Meteo 当前天气；不申请浏览器精确定位，失败时明确显示不可用。
+- `POST /site-stats`：每次页面加载计一次浏览，浏览器 localStorage 随机 UUID 用于独立访客去重；清空存储或更换浏览器会被视为新访客，不代表真实人数。
+- 今日浏览按北京时间计算，统计自启用日起累计，不补造历史访问量。本站统计表不保存 IP 地址；本地预览不计数。
+- 天气为估算位置的当前数据，使用代理时通常显示代理出口城市。天气数据源：[Open-Meteo](https://open-meteo.com/)。
+
+
 
 在**你自己的终端**里执行下面命令（本机 npm 缓存权限、网络代理由你环境决定，比沙箱里顺畅）。
 

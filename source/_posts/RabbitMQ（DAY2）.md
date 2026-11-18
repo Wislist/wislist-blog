@@ -52,7 +52,8 @@ public void testSimpleQueue(){
 
 ```java
 @RabbitListener(queues
-= "simple.queue")    void listenSimpleQueue(String msg){
+= "simple.queue")
+    void listenSimpleQueue(String msg){
     System.out.println("收到" + msg );
 }
 ```
@@ -66,7 +67,16 @@ public void testSimpleQueue(){
 修改配置，确保同一时刻只能推送给消费者一个消息：
 
 ```yml
-spring:  rabbitmq:    host: 106.53.212.49    port: 5672    virtual-host: /Demo    username: guest    password: guest    listener:      simple:        prefetch: 1  # 每次只能取一个消息
+spring:
+  rabbitmq:
+    host: 106.53.212.49
+    port: 5672
+    virtual-host: /Demo
+    username: guest
+    password: guest
+    listener:
+      simple:
+        prefetch: 1  # 每次只能取一个消息
 ```
 
 Work模型
@@ -123,7 +133,8 @@ SpringAMQP提供了解决方法
 ![image-20240904201931836](https://wilsit-img.oss-cn-guangzhou.aliyuncs.com/img/image-20240904201931836.png)
 
 ```java
-@Configurationpublic
+@Configuration
+public
 class FanoutConfiguration {
     @Bean
     public FanoutExchange fanoutExchange(){
@@ -159,7 +170,11 @@ class FanoutConfiguration {
 
 ```java
 @RabbitListener(bindings
-= @QueueBinding(            value = @Queue(name = "direct.queue1", durable = "ture"),            exchange = @Exchange(name = "hmall.direct", type = ExchangeTypes.DIRECT),            key = {"red","blue"}    ))
+= @QueueBinding(
+            value = @Queue(name = "direct.queue1", durable = "ture"),
+            exchange = @Exchange(name = "hmall.direct", type = ExchangeTypes.DIRECT),
+            key = {"red","blue"}
+    ))
 ```
 
 #### 消息转换器

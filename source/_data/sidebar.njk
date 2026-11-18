@@ -1,0 +1,25 @@
+{# NexT sidebar hook 位于站点概览内，保留文章目录/站点概览切换。 #}
+<div class="visitor-sidebar" id="visitor-sidebar">
+  <section class="visitor-card" aria-labelledby="visitor-weather-title">
+    <h2 id="visitor-weather-title">你好，欢迎来访</h2>
+    <div id="visitor-weather-status" role="status" aria-live="polite" aria-busy="true">
+      <p id="visitor-location">正在获取当地天气…</p>
+      <p id="visitor-weather"></p>
+    </div>
+    <p class="visitor-note" id="visitor-location-note">位置由 IP 估算，不申请定位权限。</p>
+    <p class="visitor-note">天气数据：<a href="https://open-meteo.com/" target="_blank" rel="noopener noreferrer">Open-Meteo</a></p>
+  </section>
+  <section class="visitor-card" aria-labelledby="visitor-stats-title">
+    <h2 id="visitor-stats-title">网站信息</h2>
+    <p id="visitor-stats-status" role="status" aria-live="polite" aria-busy="true">正在加载访问统计…</p>
+    <dl id="visitor-stats-values" hidden>
+      <div class="visitor-stat"><dt>总浏览量</dt><dd id="visitor-total-views"></dd></div>
+      <div class="visitor-stat"><dt>独立访客</dt><dd id="visitor-total-visitors"></dd></div>
+      <div class="visitor-stat"><dt>今日浏览</dt><dd id="visitor-today-views"></dd></div>
+      <div class="visitor-stat"><dt>统计启用</dt><dd id="visitor-stats-since"></dd></div>
+    </dl>
+    <p class="visitor-note">独立访客按浏览器计数；今日按北京时间。</p>
+  </section>
+  <noscript><p class="visitor-note">启用 JavaScript 后可查看天气与访问统计。</p></noscript>
+</div>
+<script src="/js/visitor-sidebar.js" defer></script>

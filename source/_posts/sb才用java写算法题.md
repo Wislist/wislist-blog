@@ -287,7 +287,8 @@ kmp算法： 前缀表（a,aa,aab,aaba,aabaa）后缀表(f,af,aaf,baaf,abaaf)
 ```java
 //从上到下
 public List<List<Integer>> levelOrder(TreeNode root) {
-    List<List<Integer>> res = new ArrayList<>()；        if (root == null) return;
+    List<List<Integer>> res = new ArrayList<>()；
+        if (root == null) return;
     Queue<TreeNode> que = new LinkedList<TreeNode>();
     //
     que.offer(node);
@@ -305,9 +306,11 @@ public List<List<Integer>> levelOrder(TreeNode root) {
     }
     return res;
 }
-//自底向上class Solution {
+//自底向上
+class Solution {
 public List<List<Integer>> levelOrderBottom(TreeNode root) {
-    // 利用链表可以进行 O(1) 头部插入, 这样最后答案不需要再反转        LinkedList<List<Integer>> ans =
+    // 利用链表可以进行 O(1) 头部插入, 这样最后答案不需要再反转
+        LinkedList<List<Integer>> ans =
     new LinkedList<>();
     Queue<TreeNode> q = new LinkedList<>();
     if (root != null) q.offer(root);
@@ -340,17 +343,21 @@ public class MorrisTraversal {
                 current = current.right;
             }
             else {
-                // 找到当前节点左子树的最右节点                TreeNode predecessor =
+                // 找到当前节点左子树的最右节点
+                TreeNode predecessor =
                 current.left;
                 while (predecessor.right != null && predecessor.right != current) {
                     predecessor = predecessor.right;
                 }
                 if (predecessor.right == null) {
-                    // 如果前驱节点的右子节点为空，将其右子节点设置为当前节点                    predecessor.right = current;                    current =
+                    // 如果前驱节点的右子节点为空，将其右子节点设置为当前节点
+                    predecessor.right = current;
+                    current =
                     current.left;
                 }
                 else {
-                    // 如果前驱节点的右子节点为当前节点，恢复树的结构并访问当前节点                    predecessor.right = null;
+                    // 如果前驱节点的右子节点为当前节点，恢复树的结构并访问当前节点
+                    predecessor.right = null;
                     System.out.print(current.val + " ");
                     current = current.right;
                 }

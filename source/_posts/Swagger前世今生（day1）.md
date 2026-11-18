@@ -149,35 +149,61 @@ import org.springframework.web.bind.annotation.*;
 /** * @author: zjl * @datetime: 2024/3/26 * @desc: */
 @Tag(name
 = "控制器：测试Swagger3", description = "描述：测试Swagger3")
-@RestControllerpublic
+@RestController
+public
 class SwaggerController {
     @Operation(summary
     = "测试Swagger3注解方法Get")
     @Parameters({@Parameter(name
-    = "id",description = "编码"),            @Parameter(name = "headerValue",description = "header传送内容")})
-    @ApiResponses({            @ApiResponse(responseCode
-    = "200", description = "请求成功"),            @ApiResponse(responseCode = "400", description = "请求参数没填好"),            @ApiResponse(responseCode = "401", description = "没有权限"),            @ApiResponse(responseCode = "403", description = "禁止访问"),            @ApiResponse(responseCode = "404", description = "请求路径没有或页面跳转路径不对")    })
+    = "id",description = "编码"),
+            @Parameter(name = "headerValue",description = "header传送内容")})
+    @ApiResponses({
+            @ApiResponse(responseCode
+    = "200", description = "请求成功"),
+            @ApiResponse(responseCode = "400", description = "请求参数没填好"),
+            @ApiResponse(responseCode = "401", description = "没有权限"),
+            @ApiResponse(responseCode = "403", description = "禁止访问"),
+            @ApiResponse(responseCode = "404", description = "请求路径没有或页面跳转路径不对")
+    })
     @GetMapping(value
-    = "/swagger/student")    public Object getStudent(@RequestParam @Parameter(example = "2")  String id,                             @RequestHeader @Parameter(example = "2") String headerValue){
+    = "/swagger/student")
+    public Object getStudent(@RequestParam @Parameter(example = "2")  String id,
+                             @RequestHeader @Parameter(example = "2") String headerValue){
         return id;
     }
     @Operation(summary
     = "测试Swagger3注解方法Post")
-    @ApiResponses({            @ApiResponse(responseCode
-    = "200", description = "请求成功"),            @ApiResponse(responseCode = "400", description = "请求参数没填好"),            @ApiResponse(responseCode = "401", description = "没有权限"),            @ApiResponse(responseCode = "403", description = "禁止访问"),            @ApiResponse(responseCode = "404", description = "请求路径没有或页面跳转路径不对")    })
+    @ApiResponses({
+            @ApiResponse(responseCode
+    = "200", description = "请求成功"),
+            @ApiResponse(responseCode = "400", description = "请求参数没填好"),
+            @ApiResponse(responseCode = "401", description = "没有权限"),
+            @ApiResponse(responseCode = "403", description = "禁止访问"),
+            @ApiResponse(responseCode = "404", description = "请求路径没有或页面跳转路径不对")
+    })
     @PostMapping(value
-    = "/swagger/student", produces = "application/json")    public SwaggerApiModel updateStudent(@RequestBody SwaggerApiModel model){
+    = "/swagger/student", produces = "application/json")
+    public SwaggerApiModel updateStudent(@RequestBody SwaggerApiModel model){
         return model;
     }
-    /**     * swagger 不暴漏该 api，通过@Hidden隐藏     * 但是仍然可以访问     * @return     */
+    /**
+     * swagger 不暴漏该 api，通过@Hidden隐藏
+     * 但是仍然可以访问
+     * @return
+     */
     @Hidden
     @GetMapping(value
-    = "/swagger/hiddenApi")    public String hiddenApi(){
+    = "/swagger/hiddenApi")
+    public String hiddenApi(){
         return "hiddenApi";
     }
-    /**     * swagger 暴漏该 api，没有配置@Hidden会展示     * @return     */
+    /**
+     * swagger 暴漏该 api，没有配置@Hidden会展示
+     * @return
+     */
     @GetMapping(value
-    = "/swagger/noHiddenApi")    public String noHiddenApi(){
+    = "/swagger/noHiddenApi")
+    public String noHiddenApi(){
         return "noHiddenApi";
     }
 }
@@ -195,11 +221,19 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import java.util.ArrayList;
 /** * @Author: Wislist * @Description: TODO * @Date: 2024/9/17 10:48 * @Version: 1.0 */
-@Configurationpublic
+@Configuration
+public
 class swaggerconfig {
     @Bean
     public OpenAPI openAPI() {
-        return new OpenAPI()                .info(new Info()                        .title("接口文档标题")                        .description("SpringBoot3 集成 Swagger3接口文档")                        .version("v1"))                .externalDocs(new ExternalDocumentation()                        .description("项目API文档")                        .url("/"));
+        return new OpenAPI()
+                .info(new Info()
+                        .title("接口文档标题")
+                        .description("SpringBoot3 集成 Swagger3接口文档")
+                        .version("v1"))
+                .externalDocs(new ExternalDocumentation()
+                        .description("项目API文档")
+                        .url("/"));
     }
 }
 ```
@@ -215,15 +249,20 @@ import java.io.Serializable;
 /** * @Author: Wislist * @Description: TODO * @Date: 2024/9/17 11:23 * @Version: 1.0 */
 @Data
 @Schema(description=
-"学生信息")public class SwaggerApiModel implements Serializable {
+"学生信息")
+public class SwaggerApiModel implements Serializable {
     @Schema(description
-    = "主键ID", required = true, example = "1")    private Long id;
+    = "主键ID", required = true, example = "1")
+    private Long id;
     @Schema(description
-    = "手机号", required = true)    private String phonenum;
+    = "手机号", required = true)
+    private String phonenum;
     @Schema(description
-    = "密码", required = true)    private String password;
+    = "密码", required = true)
+    private String password;
     @Schema(description
-    = "年龄", required = true)    private Integer age;
+    = "年龄", required = true)
+    private Integer age;
 }
 ```
 

@@ -75,11 +75,16 @@ public class EmployeePojo➊ {
 class EmployeePojoTest {
     @Test
     void inspectProperties() {
-        // 反射EmployeePojo的属性        List<String> propertyNames =
-        Arrays.stream(PropertyUtils.getPropertyDescriptors(EmployeePojo.class))                        .sequential()                        .map(PropertyDescriptor::getDisplayName)                        .collect(Collectors.toList());
+        // 反射EmployeePojo的属性
+        List<String> propertyNames =
+        Arrays.stream(PropertyUtils.getPropertyDescriptors(EmployeePojo.class))
+                        .sequential()
+                        .map(PropertyDescriptor::getDisplayName)
+                        .collect(Collectors.toList());
         // 打印反射的结果
         System.out.println(propertyNames);
-        // 打印的结果总归还需要眼睛来看，而使用断言则不需要眼睛来看控制台，且更规范        assertEquals(1,
+        // 打印的结果总归还需要眼睛来看，而使用断言则不需要眼睛来看控制台，且更规范
+        assertEquals(1,
         propertyNames.size());
         assertEquals("start", propertyNames.get(0));
     }
@@ -146,7 +151,8 @@ public class User {
     }
     @Override
     public String toString() {
-        return "User [id=" + id + ", username=" + username + ", sex=" + sex                + ", birthday=" + birthday + ", address=" + address + "]";
+        return "User [id=" + id + ", username=" + username + ", sex=" + sex
+                + ", birthday=" + birthday + ", address=" + address + "]";
     }
 }
 ```

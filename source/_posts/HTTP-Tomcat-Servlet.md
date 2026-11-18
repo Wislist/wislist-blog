@@ -195,7 +195,11 @@ TCP是一种面向连接的(建立连接之前是需要经过三次握手)、可
 请求头中会包含若干个属性，常见的HTTP请求头有:
 
 ```yml
-Host: 表示请求的主机名User-Agent: 浏览器版本,例如Chrome浏览器的标识类似Mozilla/5.0 ...Chrome/79，IE浏览器的标识类似Mozilla/5.0 (Windows NT ...)like Gecko；Accept：表示浏览器能接收的资源类型，如text/*，image/*或者*/*表示所有；Accept-Language：表示浏览器偏好的语言，服务器可以据此返回不同语言的网页；Accept-Encoding：表示浏览器可以支持的压缩类型，例如gzip, deflate等。
+Host: 表示请求的主机名
+User-Agent: 浏览器版本,例如Chrome浏览器的标识类似Mozilla/5.0 ...Chrome/79，IE浏览器的标识类似Mozilla/5.0 (Windows NT ...)like Gecko；
+Accept：表示浏览器能接收的资源类型，如text/*，image/*或者*/*表示所有；
+Accept-Language：表示浏览器偏好的语言，服务器可以据此返回不同语言的网页；
+Accept-Encoding：表示浏览器可以支持的压缩类型，例如gzip, deflate等。
 ```
 
 ==这些数据有什么用处?==
@@ -251,7 +255,10 @@ Host: 表示请求的主机名User-Agent: 浏览器版本,例如Chrome浏览器�
 响应头中会包含若干个属性，常见的HTTP响应头有:
 
 ```java
-Content-Type：表示该响应内容的类型，例如text/html，image/jpeg；Content-Length：表示该响应内容的长度（字节数）；Content-Encoding：表示该响应压缩算法，例如gzip；Cache-Control：指示客户端应如何缓存，例如max-age=300表示可以最多缓存300秒
+Content-Type：表示该响应内容的类型，例如text/html，image/jpeg；
+Content-Length：表示该响应内容的长度（字节数）；
+Content-Encoding：表示该响应压缩算法，例如gzip；
+Cache-Control：指示客户端应如何缓存，例如max-age=300表示可以最多缓存300秒
 ```
 
   * 响应体： 最后一部分。存放响应数据
@@ -282,7 +289,8 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
-/*    自定义服务器 */
+/*
+    自定义服务器 */
 public class Server {
     public static void main(String[] args) throws IOException {
         ServerSocket ss = new ServerSocket(8080);
@@ -328,7 +336,8 @@ class Handler extends Thread {
         for (;;) {
             String header = reader.readLine();
             if (header.isEmpty()) {
-                // 读取到空行时, HTTP Header读取完毕                break;
+                // 读取到空行时, HTTP Header读取完毕
+                break;
             }
             System.out.println(header);
         }
@@ -341,7 +350,9 @@ class Handler extends Thread {
             writer.flush();
         }
         else {
-            // 发送成功响应:            //读取html文件，转换为字符串            BufferedReader br =
+            // 发送成功响应:
+            //读取html文件，转换为字符串
+            BufferedReader br =
             new BufferedReader(new FileReader("http/html/a.html"));
             StringBuilder data = new StringBuilder();
             String line = null;
@@ -797,7 +808,12 @@ Web项目的结构分为:开发中的项目和开发完可以部署的Web项目,
                     80
                 </port>
                 <!--访问端口号 -->
-                <!--项目访问路径					未配置访问路径: http://localhost:80/tomcat-demo2/a.html					配置/后访问路径: http://localhost:80/a.html					如果配置成 /hello,访问路径会变成什么?						答案: http://localhost:80/hello/a.html				-->
+                <!--项目访问路径
+                    未配置访问路径: http://localhost:80/tomcat-demo2/a.html
+                    配置/后访问路径: http://localhost:80/a.html
+                    如果配置成 /hello,访问路径会变成什么?
+                        答案: http://localhost:80/hello/a.html
+                -->
                 <path>
                     /
                 </path>
@@ -848,7 +864,11 @@ Web项目的结构分为:开发中的项目和开发完可以部署的Web项目,
     <version>
         3.1.0
     </version>
-    <!--      此处为什么需要添加该标签?      provided指的是在编译和测试过程中有效,最后生成的war包时不会加入       因为Tomcat的lib目录中已经有servlet-api这个jar包，如果在生成war包的时候生效就会和Tomcat中的jar包冲突，导致报错    -->
+    <!--
+      此处为什么需要添加该标签?
+      provided指的是在编译和测试过程中有效,最后生成的war包时不会加入
+       因为Tomcat的lib目录中已经有servlet-api这个jar包，如果在生成war包的时候生效就会和Tomcat中的jar包冲突，导致报错
+    -->
     <scope>
         provided
     </scope>
@@ -946,7 +966,10 @@ Servlet程序已经能正常运行，但是我们需要思考个问题: 我们�
 ```java
 默认情况，Servlet会在第一次访问被容器创建，但是如果创建Servlet比较耗时的话，那么第一个访问的人等待的时间就比较长，用户的体验就比较差，那么我们能不能把Servlet的创建放到服务器启动的时候来创建，具体如何来配置?
 @WebServlet(urlPatterns
-= "/demo1",loadOnStartup = 1)loadOnstartup的取值有两类情况	（1）负整数:第一次访问时创建Servlet对象	（2）0或正整数:服务器启动时创建Servlet对象，数字越小优先级越高
+= "/demo1",loadOnStartup = 1)
+loadOnstartup的取值有两类情况
+（1）负整数:第一次访问时创建Servlet对象
+（2）0或正整数:服务器启动时创建Servlet对象，数字越小优先级越高
 ```
 
     2. ==初始化==：在Servlet实例化之后，容器将调用Servlet的==init()==方法初始化这个对象，完成一些如加载配置文件、创建连接等初始化的工作。该方法只==调用一次==
@@ -961,16 +984,37 @@ import javax.servlet.annotation.WebServlet;
 import java.io.IOException;
 /*** Servlet生命周期方法*/
 @WebServlet(urlPatterns
-= "/demo2",loadOnStartup = 1)public class ServletDemo2 implements Servlet {
-    /**     *  初始化方法     *  1.调用时机：默认情况下，Servlet被第一次访问时，调用     *      * loadOnStartup: 默认为-1，修改为0或者正整数，则会在服务器启动的时候，调用     *  2.调用次数: 1次     * @param config     * @throws ServletException     */
+= "/demo2",loadOnStartup = 1)
+public class ServletDemo2 implements Servlet {
+    /**
+     *  初始化方法
+     *  1.调用时机：默认情况下，Servlet被第一次访问时，调用
+     *
+      * loadOnStartup: 默认为-1，修改为0或者正整数，则会在服务器启动的时候，调用
+     *  2.调用次数: 1次
+     * @param config
+     * @throws ServletException
+     */
     public void init(ServletConfig config) throws ServletException {
         System.out.println("init...");
     }
-    /**     * 提供服务     * 1.调用时机:每一次Servlet被访问时，调用     * 2.调用次数: 多次     * @param req     * @param res     * @throws ServletException     * @throws IOException     */
+    /**
+     * 提供服务
+     * 1.调用时机:每一次Servlet被访问时，调用
+     * 2.调用次数: 多次
+     * @param req
+     * @param res
+     * @throws ServletException
+     * @throws IOException
+     */
     public void service(ServletRequest req, ServletResponse res) throws ServletException, IOException {
         System.out.println("servlet hello world~");
     }
-    /**     * 销毁方法     * 1.调用时机：内存释放或者服务器关闭的时候，Servlet对象会被销毁，调用     * 2.调用次数: 1次     */
+    /**
+     * 销毁方法
+     * 1.调用时机：内存释放或者服务器关闭的时候，Servlet对象会被销毁，调用
+     * 2.调用次数: 1次
+     */
     public void destroy() {
         System.out.println("destroy...");
     }
@@ -1066,9 +1110,18 @@ import javax.servlet.annotation.WebServlet;
 import java.io.IOException;
 /** * Servlet方法介绍 */
 @WebServlet(urlPatterns
-= "/demo3",loadOnStartup = 1)public class ServletDemo3 implements Servlet {
+= "/demo3",loadOnStartup = 1)
+public class ServletDemo3 implements Servlet {
     private ServletConfig servletConfig;
-    /**     *  初始化方法     *  1.调用时机：默认情况下，Servlet被第一次访问时，调用     *      * loadOnStartup: 默认为-1，修改为0或者正整数，则会在服务器启动的时候，调用     *  2.调用次数: 1次     * @param config     * @throws ServletException     */
+    /**
+     *  初始化方法
+     *  1.调用时机：默认情况下，Servlet被第一次访问时，调用
+     *
+      * loadOnStartup: 默认为-1，修改为0或者正整数，则会在服务器启动的时候，调用
+     *  2.调用次数: 1次
+     * @param config
+     * @throws ServletException
+     */
     public void init(ServletConfig config) throws ServletException {
         this.servletConfig = config;
         System.out.println("init...");
@@ -1076,11 +1129,23 @@ import java.io.IOException;
     public ServletConfig getServletConfig() {
         return servletConfig;
     }
-    /**     * 提供服务     * 1.调用时机:每一次Servlet被访问时，调用     * 2.调用次数: 多次     * @param req     * @param res     * @throws ServletException     * @throws IOException     */
+    /**
+     * 提供服务
+     * 1.调用时机:每一次Servlet被访问时，调用
+     * 2.调用次数: 多次
+     * @param req
+     * @param res
+     * @throws ServletException
+     * @throws IOException
+     */
     public void service(ServletRequest req, ServletResponse res) throws ServletException, IOException {
         System.out.println("servlet hello world~");
     }
-    /**     * 销毁方法     * 1.调用时机：内存释放或者服务器关闭的时候，Servlet对象会被销毁，调用     * 2.调用次数: 1次     */
+    /**
+     * 销毁方法
+     * 1.调用时机：内存释放或者服务器关闭的时候，Servlet对象会被销毁，调用
+     * 2.调用次数: 1次
+     */
     public void destroy() {
         System.out.println("destroy...");
     }
@@ -1168,7 +1233,10 @@ public class ServletDemo5 implements Servlet {
         return null;
     }
     public void service(ServletRequest req, ServletResponse res) throws ServletException, IOException {
-        //如何调用?        //获取请求方式，根据不同的请求方式进行不同的业务处理        HttpServletRequest request = (HttpServletRequest)req;       //1. 获取请求方式
+        //如何调用?
+        //获取请求方式，根据不同的请求方式进行不同的业务处理
+        HttpServletRequest request = (HttpServletRequest)req;
+       //1. 获取请求方式
         String method = request.getMethod();
         //2. 判断
         if("GET".equals(method)){
@@ -1205,10 +1273,12 @@ public class MyHttpServlet implements Servlet {
         String method = request.getMethod();
         //2. 判断
         if("GET".equals(method)){
-            // get方式的处理逻辑            doGet(req,res);
+            // get方式的处理逻辑
+            doGet(req,res);
         }
         else if("POST".equals(method)){
-            // post方式的处理逻辑            doPost(req,res);
+            // post方式的处理逻辑
+            doPost(req,res);
         }
     }
     protected void doPost(ServletRequest req, ServletResponse res) {
@@ -1244,21 +1314,27 @@ public class ServletDemo5 extends MyHttpServlet {
 类似MyHttpServlet这样的类Servlet中已经为我们提供好了，就是HttpServlet,翻开源码，大家可以搜索`service()`方法，你会发现HttpServlet做的事更多，不仅可以处理GET和POST还可以处理其他五种请求方式。
 
 ```java
-protected void service(HttpServletRequest req, HttpServletResponse resp)        throws ServletException, IOException    {
+protected void service(HttpServletRequest req, HttpServletResponse resp)
+        throws ServletException, IOException
+    {
     String method = req.getMethod();
     if (method.equals(METHOD_GET)) {
         long lastModified = getLastModified(req);
         if (lastModified == -1) {
             // servlet doesn't support
-            if-modified-since, no reason
-            // to go through further expensive logic                doGet(req, resp);
+            // if-modified-since, no reason
+            // to go through further expensive logic
+                doGet(req, resp);
         }
         else {
             long ifModifiedSince = req.getDateHeader(HEADER_IFMODSINCE);
             if (ifModifiedSince < lastModified) {
-                // If the servlet mod time is later, call doGet()                    // Round down to the nearest second
-                for a proper compare
-                // A ifModifiedSince of -1 will always be less                    maybeSetLastModified(resp, lastModified);                    doGet(req, resp);
+                // If the servlet mod time is later, call doGet()
+                    // Round down to the nearest second
+                // for a proper compare
+                // A ifModifiedSince of -1 will always be less
+                    maybeSetLastModified(resp, lastModified);
+                    doGet(req, resp);
             }
             else {
                 resp.setStatus(HttpServletResponse.SC_NOT_MODIFIED);
@@ -1286,7 +1362,10 @@ protected void service(HttpServletRequest req, HttpServletResponse resp)        
         doTrace(req,resp);
     }
     else {
-        //            // Note that this means NO servlet supports whatever            // method was requested, anywhere on this server.            //
+        //
+            // Note that this means NO servlet supports whatever
+            // method was requested, anywhere on this server.
+            //
         String errMsg = lStrings.getString("http.method_not_implemented");
         Object[] errArgs = new Object[1];
         errArgs[0] = method;
@@ -1327,7 +1406,8 @@ import javax.servlet.ServletResponse;
 import javax.servlet.annotation.WebServlet;
 /*** urlPattern: 一个Servlet可以配置多个访问路径*/
 @WebServlet(urlPatterns
-= {"/demo7","/demo8"})public class ServletDemo7 extends MyHttpServlet {
+= {"/demo7","/demo8"})
+public class ServletDemo7 extends MyHttpServlet {
     @Override
     protected void doGet(ServletRequest req, ServletResponse res) {
         System.out.println("demo7 get...");
@@ -1349,7 +1429,8 @@ import javax.servlet.annotation.WebServlet;
 ```java
 /** * UrlPattern: * * 精确匹配 */
 @WebServlet(urlPatterns
-= "/user/select")public class ServletDemo8 extends MyHttpServlet {
+= "/user/select")
+public class ServletDemo8 extends MyHttpServlet {
     @Override
     protected void doGet(ServletRequest req, ServletResponse res) {
         System.out.println("demo8 get...");
@@ -1373,7 +1454,8 @@ import javax.servlet.ServletResponse;
 import javax.servlet.annotation.WebServlet;
 /** * UrlPattern: * * 目录匹配: /user/* */
 @WebServlet(urlPatterns
-= "/user/*")public class ServletDemo9 extends MyHttpServlet {
+= "/user/*")
+public class ServletDemo9 extends MyHttpServlet {
     @Override
     protected void doGet(ServletRequest req, ServletResponse res) {
         System.out.println("demo9 get...");
@@ -1405,7 +1487,8 @@ import javax.servlet.ServletResponse;
 import javax.servlet.annotation.WebServlet;
 /** * UrlPattern: * * 扩展名匹配: *.do */
 @WebServlet(urlPatterns
-= "*.do")public class ServletDemo10 extends MyHttpServlet {
+= "*.do")
+public class ServletDemo10 extends MyHttpServlet {
     @Override
     protected void doGet(ServletRequest req, ServletResponse res) {
         System.out.println("demo10 get...");
@@ -1439,7 +1522,8 @@ import javax.servlet.ServletResponse;
 import javax.servlet.annotation.WebServlet;
 /** * UrlPattern: * * 任意匹配： / */
 @WebServlet(urlPatterns
-= "/")public class ServletDemo11 extends MyHttpServlet {
+= "/")
+public class ServletDemo11 extends MyHttpServlet {
     @Override
     protected void doGet(ServletRequest req, ServletResponse res) {
         System.out.println("demo11 get...");
@@ -1459,7 +1543,8 @@ import javax.servlet.ServletResponse;
 import javax.servlet.annotation.WebServlet;
 /** * UrlPattern: * * 任意匹配： /* */
 @WebServlet(urlPatterns
-= "/*")public class ServletDemo12 extends MyHttpServlet {
+= "/*")
+public class ServletDemo12 extends MyHttpServlet {
     @Override
     protected void doGet(ServletRequest req, ServletResponse res) {
         System.out.println("demo12 get...");
@@ -1518,8 +1603,13 @@ public class ServletDemo13 extends MyHttpServlet {
 
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
-    <web-app xmlns="http://xmlns.jcp.org/xml/ns/javaee"         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"         xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee http://xmlns.jcp.org/xml/ns/javaee/web-app_4_0.xsd"         version="4.0">
-        <!--         Servlet 全类名    -->
+    <web-app xmlns="http://xmlns.jcp.org/xml/ns/javaee"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee http://xmlns.jcp.org/xml/ns/javaee/web-app_4_0.xsd"
+         version="4.0">
+        <!--
+         Servlet 全类名
+    -->
         <servlet>
             <!-- servlet的名称，名字任意-->
             <servlet-name>
@@ -1530,7 +1620,9 @@ public class ServletDemo13 extends MyHttpServlet {
                 com.itheima.web.ServletDemo13
             </servlet-class>
         </servlet>
-        <!--         Servlet 访问路径    -->
+        <!--
+         Servlet 访问路径
+    -->
         <servlet-mapping>
             <!-- servlet的名称，要和上面的名称一致-->
             <servlet-name>

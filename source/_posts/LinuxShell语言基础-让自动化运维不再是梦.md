@@ -55,7 +55,11 @@ PS1 基本提示符，对于 root 用户是#，对于普通用户是$
 使用自己定义的变量：
 
 ```shell
-#!/bin/bash#自定义变量hellohello="hello world"echo $helloecho  "helloworld!"
+#!/bin/bash
+#自定义变量hello
+hello="hello world"
+echo "$hello"
+echo "helloworld!"
 ```
 
 ![image-20240901003533437](https://wilsit-img.oss-cn-guangzhou.aliyuncs.com/img/image-20240901003533437.png)
@@ -67,7 +71,16 @@ PS1 基本提示符，对于 root 用户是#，对于普通用户是$
 常用操作
 
 ```shell
-#!/bin/bashname="SnailClimb"# 使用双引号拼接greeting="hello, "$name" !"greeting_1="hello, ${name} !"echo $greeting  $greeting_1# 使用单引号拼接greeting_2='hello, '$name' !'greeting_3='hello, ${name} !'echo $greeting_2  $greeting_3
+#!/bin/bash
+name="SnailClimb"
+# 使用双引号拼接
+greeting="hello, "$name" !"
+greeting_1="hello, ${name} !"
+echo "$greeting" "$greeting_1"
+# 使用单引号拼接
+greeting_2='hello, '$name' !'
+greeting_3='hello, ${name} !'
+echo "$greeting_2" "$greeting_3"
 ```
 
 流程控制不想写 用的不多
@@ -75,5 +88,52 @@ PS1 基本提示符，对于 root 用户是#，对于普通用户是$
 简单实战一下：快速部署docker的redis集群 需要3对主从节点 并且需要 将端口设置为6001 6002 6003 7001 7002 7003 并生成一个6010端口的哨兵
 
 ```shell
-#!/bin/bashdocker rm -f `docker ps --filter name=.*redis-700.* -aq`echo "1.请输入您要部署的目录位置"gml=""while : do   read path   if [[ "$path" =~ ^([\/]{1}[a-zA-Z]{1,9}){1,5}$ ]];then     gml=$path     break   else     echo "$path不符合linux路径标准"     echo "输入一个合法的根目录如《/path/path1...》"   fi donerm -rf $path/redismkdir $pathcd $gmlecho "2.正在创建redis目录"mkdir rediscd redisdocker pull redis:5.0.4echo "3.正在创建redis集群模板"touch redis-cluster.tmplecho -e "port \${PORT}\nprotected-mode no\ncluster-enabled yes\ncluster-config-file nodes.conf\ncluster-node-timeout 5000\ncluster-announce-ip 192.168.2.103\ncluster-announce-port \${PORT}\ncluster-announce-bus-port 1\${PORT}\nappendonly yes">>redis-cluster.tmpldocker network create redis-netecho "4.完成模板创建"echo "5.正在创建redis配置"for port in `seq 7000 7005` do   mkdir -p ./${port}/conf && PORT=${port} envsubst < ./redis-cluster.tmpl > ./${port}/conf/redis.conf   && mkdir -p ./${port}/data doneecho "6.redis配置创建完成"ips=""for port in `seq 7000 7005` do  docker run --privileged=true -m 200m -d  -p ${port}:${port} -p 1${port}:1${port}   -v /${gml}/redis/${port}/conf/redis.conf:/usr/local/etc/redis/redis.conf   -v /${gml}/redis/${port}/data:/data   --restart always --name redis-${port} --net redis-net   --sysctl net.core.somaxconn=1024 redis:5.0.4 redis-server /usr/local/etc/redis/redis.conf echo "7.正在创建redis-$port 容器" ips="$ips`docker inspect redis-${port} --format '{{ (index .NetworkSettings.Networks "redis-net").IPAddress }}'`:${port}  " doneecho "所有容器中创建完成"docker exec -it redis-7000 bash -c "echo yes | redis-cli --cluster create $ips --cluster-replicas 1  && exit"echo "集群启动成功！！！"
+#!/bin/bash
+docker rm -f $(docker ps --filter 'name=.*redis-700.*' -aq)
+echo "1.请输入您要部署的目录位置"
+gml=""
+while :; do
+    read -r path
+    if [[ "$path" =~ ^([\/]{1}[a-zA-Z]{1,9}){1,5}$ ]]; then
+        gml="$path"
+        break
+    else
+        echo "${path}不符合linux路径标准"
+        echo "输入一个合法的根目录如《/path/path1...》"
+    fi
+done
+rm -rf -- "$path/redis"
+mkdir -- "$path"
+cd -- "$gml"
+echo "2.正在创建redis目录"
+mkdir redis
+cd redis
+docker pull redis:5.0.4
+echo "3.正在创建redis集群模板"
+touch redis-cluster.tmpl
+echo -e "port \${PORT}\nprotected-mode no\ncluster-enabled yes\ncluster-config-file nodes.conf\ncluster-node-timeout 5000\ncluster-announce-ip 192.168.2.103\ncluster-announce-port \${PORT}\ncluster-announce-bus-port 1\${PORT}\nappendonly yes" >> redis-cluster.tmpl
+docker network create redis-net
+echo "4.完成模板创建"
+echo "5.正在创建redis配置"
+for port in $(seq 7000 7005); do
+    mkdir -p "./${port}/conf" &&
+        PORT="${port}" envsubst < ./redis-cluster.tmpl > "./${port}/conf/redis.conf" &&
+        mkdir -p "./${port}/data"
+done
+echo "6.redis配置创建完成"
+ips=""
+for port in $(seq 7000 7005); do
+    docker run --privileged=true -m 200m -d \
+        -p "${port}:${port}" -p "1${port}:1${port}" \
+        -v "${gml}/redis/${port}/conf/redis.conf:/usr/local/etc/redis/redis.conf" \
+        -v "${gml}/redis/${port}/data:/data" \
+        --restart always --name "redis-${port}" --net redis-net \
+        --sysctl net.core.somaxconn=1024 redis:5.0.4 \
+        redis-server /usr/local/etc/redis/redis.conf
+    echo "7.正在创建redis-$port 容器"
+    ips="$ips$(docker inspect "redis-${port}" --format '{{ (index .NetworkSettings.Networks "redis-net").IPAddress }}'):${port}  "
+done
+echo "所有容器中创建完成"
+docker exec -it redis-7000 bash -c "echo yes | redis-cli --cluster create $ips --cluster-replicas 1  && exit"
+echo "集群启动成功！！！"
 ```

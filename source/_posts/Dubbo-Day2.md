@@ -46,10 +46,10 @@ public interface GreetingsService {
 消费者通过Dubbo的API可以获取`GreetingsService`接口的代理，然后就可以按照普通的接口调用方式进行调用。**得益于Dubbo的动态代理机制，这就像本地代理一样**
 
 ```java
-// 获取订阅到的 StubGreetingsService service =
-reference.get();
-// 像普通的 java 接口一样调用String message =
-service.sayHi("dubbo");
+// 获取订阅到的 Stub
+GreetingsService service = reference.get();
+// 像普通的 java 接口一样调用
+String message = service.sayHi("dubbo");
 ```
 
 #### Dubbo Spring Boot Starter开发微服务

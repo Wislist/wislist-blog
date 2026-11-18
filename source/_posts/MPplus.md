@@ -56,7 +56,10 @@ mbps支持各种复杂的where条件，可以满足日常开发的所有需求
 ![image-20240912231207273](https://wilsit-img.oss-cn-guangzhou.aliyuncs.com/img/image-20240912231207273.png)
 
 ```java
-QueryWrapper<User> wrapper = new QueryWrapper<>()                .select("id","username","info","balance")                .like("username","o")                .ge("balance",1000);
+QueryWrapper<User> wrapper = new QueryWrapper<>()
+                .select("id","username","info","balance")
+                .like("username","o")
+                .ge("balance",1000);
 List<User> users = userMapper.selectList(wrapper);
 ```
 

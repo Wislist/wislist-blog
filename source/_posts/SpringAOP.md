@@ -76,7 +76,8 @@ AOP面向切面编程的一些优势：
 public Object recordTime(ProceedingJoinPoint pjp) throws Throwable {
     //记录方法执行开始时间
     long begin = System.currentTimeMillis();
-    //执行原始方法    Object result =
+    //执行原始方法
+    Object result =
     pjp.proceed();
     //记录方法执行结束时间
     long end = System.currentTimeMillis();

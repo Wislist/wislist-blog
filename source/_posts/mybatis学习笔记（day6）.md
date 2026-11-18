@@ -57,8 +57,11 @@ mybatis核心,对sql语句进行灵活操作，通过表达式进行判断，对
 
 
 ```sql
-<!-- 用户信息综合查询    #{userCustom.sex}:取出pojo包装对象中性别值    ${userCustom.username}：取出pojo包装对象中用户名称 -->
-<select id="findUserList" parameterType="com.iot.mybatis.po.UserQueryVo"        resultType="com.iot.mybatis.po.UserCustom">
+<!-- 用户信息综合查询
+    #{userCustom.sex}:取出pojo包装对象中性别值
+    ${userCustom.username}：取出pojo包装对象中用户名称 -->
+<select id="findUserList" parameterType="com.iot.mybatis.po.UserQueryVo"
+        resultType="com.iot.mybatis.po.UserCustom">
     SELECT * FROM user
     <!--  where 可以自动去掉条件中的第一个and -->
     <where>
@@ -72,7 +75,9 @@ mybatis核心,对sql语句进行灵活操作，通过表达式进行判断，对
         </if>
     </where>
 </select>
-<!-- 用户信息综合查询总数    parameterType：指定输入类型和findUserList一样    resultType：输出结果类型-->
+<!-- 用户信息综合查询总数
+    parameterType：指定输入类型和findUserList一样
+    resultType：输出结果类型-->
 <select id="findUserCount" parameterType="com.iot.mybatis.po.UserQueryVo" resultType="int">
     SELECT count(*) FROM user
     <where>
@@ -130,8 +135,11 @@ userQueryVo.setUserCustom(userCustom);
 
 
 ```sql
-<!-- 用户信息综合查询    #{userCustom.sex}:取出pojo包装对象中性别值    ${userCustom.username}：取出pojo包装对象中用户名称 -->
-<select id="findUserList" parameterType="com.iot.mybatis.po.UserQueryVo"        resultType="com.iot.mybatis.po.UserCustom">
+<!-- 用户信息综合查询
+    #{userCustom.sex}:取出pojo包装对象中性别值
+    ${userCustom.username}：取出pojo包装对象中用户名称 -->
+<select id="findUserList" parameterType="com.iot.mybatis.po.UserQueryVo"
+        resultType="com.iot.mybatis.po.UserCustom">
     SELECT * FROM user
     <!--  where 可以自动去掉条件中的第一个and -->
     <where>
@@ -176,13 +184,24 @@ public class UserQueryVo {
 
 ```xml
 <if test="ids!=null">
-    <!-- 使用 foreach遍历传入ids    collection：指定输入 对象中集合属性    item：每个遍历生成对象中    open：开始遍历时拼接的串    close：结束遍历时拼接的串    separator：遍历的两个对象中需要拼接的串     -->
-    <!-- 使用实现下边的sql拼接：     AND (id=1 OR id=10 OR id=16)     -->
+    <!-- 使用 foreach遍历传入ids
+    collection：指定输入 对象中集合属性
+    item：每个遍历生成对象中
+    open：开始遍历时拼接的串
+    close：结束遍历时拼接的串
+    separator：遍历的两个对象中需要拼接的串
+     -->
+    <!-- 使用实现下边的sql拼接：
+     AND (id=1 OR id=10 OR id=16)
+     -->
     <foreach collection="ids" item="user_id" open="AND (" close=")" separator="or">
         <!-- 每个遍历需要拼接的串 -->
         id=#{user_id}
     </foreach>
     <!-- 实现  “ and id IN(1,10,16)”拼接 -->
-    <!-- <foreach collection="ids" item="user_id" open="and id IN(" close=")" separator=",">        每个遍历需要拼接的串        #{user_id}    </foreach> -->
+    <!-- <foreach collection="ids" item="user_id" open="and id IN(" close=")" separator=",">
+        每个遍历需要拼接的串
+        #{user_id}
+    </foreach> -->
 </if>
 ```

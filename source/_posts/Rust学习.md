@@ -22,20 +22,86 @@ tags:
 ​ 允许各个元素类型不相同
 
 ```
-fn main(){	let tup: (i32,f64,u8) = (500,6.4,1);}
+fn main() {
+    let tup: (i32, f64, u8) = (500, 6.4, 1);
+}
 ```
 
   * 字符串
 
 
 ```
-// quiz2.rs//// This is a quiz for the following sections:// - Strings// - Vecs// - Move semantics// - Modules// - Enums//// Let's build a little machine in the form of a function. As input, we're going// to give a list of strings and commands. These commands determine what action// is going to be applied to the string. It can either be:// - Uppercase the string// - Trim the string// - Append "bar" to the string a specified amount of times// The exact form of this will be:// - The input is going to be a Vector of a 2-length tuple,//   the first element is the string, the second one is the command.// - The output element is going to be a Vector of strings.//// No hints this time!// I AM NOT DONEpub enum Command {    Uppercase,    Trim,    Append(usize),}mod my_module {    use super::Command;    // TODO: Complete the function signature!    pub fn transformer(input: Vec
-<(String,Command)>
-    ) -> Vec
-    <String>
-        {        // TODO: Complete the output declaration!        let mut output: Vec
-        <String>
-            = vec![];        for (string, command) in input.iter() {            // TODO: Complete the function body. You can do it!            match command{                Command::Uppercase => output.push(string.to_uppercase()),                Command::Trim => output.push(string.trim().to_string()),                Command::Append(n) => {                    let mut append_stirng = string.clone();                    for _ in 0..*n {                        append_stirng += "bar";                    }                    output.push(append_stirng);                }            }        }        output    }}#[cfg(test)]mod tests {    // TODO: What do we need to import to have `transformer` in scope?    use super::my_module::transformer;    use super::Command;    #[test]    fn it_works() {        let output = transformer(vec![            ("hello".into(), Command::Uppercase),            (" all roads lead to rome! ".into(), Command::Trim),            ("foo".into(), Command::Append(1)),            ("bar".into(), Command::Append(5)),        ]);        assert_eq!(output[0], "HELLO");        assert_eq!(output[1], "all roads lead to rome!");        assert_eq!(output[2], "foobar");        assert_eq!(output[3], "barbarbarbarbarbar");    }}
+// quiz2.rs
+//
+// This is a quiz for the following sections:
+// - Strings
+// - Vecs
+// - Move semantics
+// - Modules
+// - Enums
+//
+// Let's build a little machine in the form of a function. As input, we're going
+// to give a list of strings and commands. These commands determine what action
+// is going to be applied to the string. It can either be:
+// - Uppercase the string
+// - Trim the string
+// - Append "bar" to the string a specified amount of times
+// The exact form of this will be:
+// - The input is going to be a Vector of a 2-length tuple,
+//   the first element is the string, the second one is the command.
+// - The output element is going to be a Vector of strings.
+//
+// No hints this time!
+// I AM NOT DONE
+pub enum Command {
+    Uppercase,
+    Trim,
+    Append(usize),
+}
+
+mod my_module {
+    use super::Command;
+    // TODO: Complete the function signature!
+    pub fn transformer(input: Vec<(String, Command)>) -> Vec<String> {
+        // TODO: Complete the output declaration!
+        let mut output: Vec<String> = vec![];
+        for (string, command) in input.iter() {
+            // TODO: Complete the function body. You can do it!
+            match command {
+                Command::Uppercase => output.push(string.to_uppercase()),
+                Command::Trim => output.push(string.trim().to_string()),
+                Command::Append(n) => {
+                    let mut append_stirng = string.clone();
+                    for _ in 0..*n {
+                        append_stirng += "bar";
+                    }
+                    output.push(append_stirng);
+                }
+            }
+        }
+        output
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    // TODO: What do we need to import to have `transformer` in scope?
+    use super::my_module::transformer;
+    use super::Command;
+    #[test]
+    fn it_works() {
+        let output = transformer(vec![
+            ("hello".into(), Command::Uppercase),
+            (" all roads lead to rome! ".into(), Command::Trim),
+            ("foo".into(), Command::Append(1)),
+            ("bar".into(), Command::Append(5)),
+        ]);
+        assert_eq!(output[0], "HELLO");
+        assert_eq!(output[1], "all roads lead to rome!");
+        assert_eq!(output[2], "foobar");
+        assert_eq!(output[3], "barbarbarbarbarbar");
+    }
+}
 ```
 
   * String
@@ -82,13 +148,19 @@ fn main(){	let tup: (i32,f64,u8) = (500,6.4,1);}
 ## .fold()
 
 ```
-fn main() {    let numbers = vec![1, 2, 3, 4, 5];    let sum = numbers.iter().fold(0, |acc, &x| acc + x);    println!("The sum is: {}", sum); // 输出：The sum is: 15}
+fn main() {
+    let numbers = vec![1, 2, 3, 4, 5];
+    let sum = numbers.iter().fold(0, |acc, &x| acc + x);
+    println!("The sum is: {}", sum); // 输出：The sum is: 15
+}
 ```
 
 .fold()迭代器方法
 
 ```
-fn fold<B, F>(self, init: B, f: F) -> Bwhere    F: FnMut(B, Self::Item) -> B,
+fn fold<B, F>(self, init: B, f: F) -> B
+where
+    F: FnMut(B, Self::Item) -> B,
 ```
 
 这里的参数含义是：
@@ -159,11 +231,26 @@ Drop
 结合Rc < T >和 RefCell < T > 来拥有多个可变数据所有者
 
 ```
-#[derive(Debug)]enum List {    Cons(Rc
-<RefCell<i32>
-    >, Rc
-    <List>
-        ),    Nil,}use crate::List::{Cons, Nil};use std::cell::RefCell;use std::rc::Rc;fn main() {    let value = Rc::new(RefCell::new(5));    let a = Rc::new(Cons(Rc::clone(&value), Rc::new(Nil)));    let b = Cons(Rc::new(RefCell::new(3)), Rc::clone(&a));    let c = Cons(Rc::new(RefCell::new(4)), Rc::clone(&a));    *value.borrow_mut() += 10;    println!("a after = {:?}", a);    println!("b after = {:?}", b);    println!("c after = {:?}", c);}
+#[derive(Debug)]
+enum List {
+    Cons(Rc<RefCell<i32>>, Rc<List>),
+    Nil,
+}
+
+use crate::List::{Cons, Nil};
+use std::cell::RefCell;
+use std::rc::Rc;
+
+fn main() {
+    let value = Rc::new(RefCell::new(5));
+    let a = Rc::new(Cons(Rc::clone(&value), Rc::new(Nil)));
+    let b = Cons(Rc::new(RefCell::new(3)), Rc::clone(&a));
+    let c = Cons(Rc::new(RefCell::new(4)), Rc::clone(&a));
+    *value.borrow_mut() += 10;
+    println!("a after = {:?}", a);
+    println!("b after = {:?}", b);
+    println!("c after = {:?}", c);
+}
 ```
 
 可以拥有一个表面上不可变的`List`，不过可以使用RefCell< T>中提供内部可变性的方法来再需要时修改

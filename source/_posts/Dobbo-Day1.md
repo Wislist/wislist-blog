@@ -49,7 +49,12 @@ RPC两大核心：通信 序列化
 使用docker拉取镜像
 
 ```shell
-# 检索ZooKeeper 镜像docker search zookeeper# 拉取ZooKeeper镜像最新版本docker pull zookeeper:latest# 我使用的版本docker pull zookeeper:3.5.7
+# 检索ZooKeeper 镜像
+docker search zookeeper
+# 拉取ZooKeeper镜像最新版本
+docker pull zookeeper:latest
+# 我使用的版本
+docker pull zookeeper:3.5.7
 ```
 
   * 启动容器
@@ -80,7 +85,16 @@ docker exec -it zookeeper zkCli.sh
 #### dobbo-admin安装
 
 ```shell
-docker run -d \	--name dubbo-admin \	--net zookeeper \	-v background:/data \	-p 7001:8080 \	-e DUBBO_REGISTRY="zookeeper:\/\/ip:port" \	-e DUBBO_ROOT_PASSWORD=root \	-e DUBBO_GUEST_PASSWORD=guest \	--restart=always \	apache/dubbo-admin
+docker run -d \
+    --name dubbo-admin \
+    --net zookeeper \
+    -v background:/data \
+    -p 7001:8080 \
+    -e DUBBO_REGISTRY="zookeeper:\/\/ip:port" \
+    -e DUBBO_ROOT_PASSWORD=root \
+    -e DUBBO_GUEST_PASSWORD=guest \
+    --restart=always \
+    apache/dubbo-admin
 ```
 
 缺点：配置网络桥接（容器与容器间的通信）

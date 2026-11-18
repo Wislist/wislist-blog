@@ -39,7 +39,8 @@ tags:
 ```java
 package com.iot.mybatis.po;
 public class UserQueryVo {
-    //在这里包装所需要的查询条件    //用户查询条件
+    //在这里包装所需要的查询条件
+    //用户查询条件
     private UserCustom userCustom;
     public UserCustom getUserCustom() {
         return userCustom;
@@ -47,7 +48,9 @@ public class UserQueryVo {
     public void setUserCustom(UserCustom userCustom) {
         this.userCustom = userCustom;
     }
-//可以包装其它的查询条件，订单、商品    //....}
+//可以包装其它的查询条件，订单、商品
+//....
+}
 ```
 
 其中，UserCustom类继承User
@@ -63,8 +66,11 @@ public class UserCustom extends User{}
 在UserMapper.xml中定义用户信息综合查询（查询条件复杂，通过高级查询进行复杂关联查询）。
 
 ```sql
-<!-- 用户信息综合查询    #{userCustom.sex}:取出pojo包装对象中性别值    ${userCustom.username}：取出pojo包装对象中用户名称 -->
-<select id="findUserList" parameterType="com.iot.mybatis.po.UserQueryVo"        resultType="com.iot.mybatis.po.UserCustom">
+<!-- 用户信息综合查询
+    #{userCustom.sex}:取出pojo包装对象中性别值
+    ${userCustom.username}：取出pojo包装对象中用户名称 -->
+<select id="findUserList" parameterType="com.iot.mybatis.po.UserQueryVo"
+        resultType="com.iot.mybatis.po.UserCustom">
     SELECT * FROM user WHERE user.sex=#{userCustom.sex} AND user.username LIKE '%${userCustom.username}%'
 </select>
 ```
@@ -79,7 +85,8 @@ org.apache.ibatis.exceptions.PersistenceException: ### Error querying database. 
 
 
 ```java
-//用户信息综合查询public List<UserCustom> findUserList(UserQueryVo userQueryVo) throws Exception;
+//用户信息综合查询
+public List<UserCustom> findUserList(UserQueryVo userQueryVo) throws Exception;
 ```
 
   * 测试代码
@@ -90,16 +97,19 @@ org.apache.ibatis.exceptions.PersistenceException: ### Error querying database. 
 @Test
 public void testFindUserList() throws Exception {
     SqlSession sqlSession = sqlSessionFactory.openSession();
-    //创建UserMapper对象，mybatis自动生成mapper代理对象		UserMapper userMapper  =
+    //创建UserMapper对象，mybatis自动生成mapper代理对象
+        UserMapper userMapper  =
     sqlSession.getMapper(UserMapper.class);
-    //创建包装对象，设置查询条件		UserQueryVo userQueryVo =
+    //创建包装对象，设置查询条件
+        UserQueryVo userQueryVo =
     new UserQueryVo();
     UserCustom userCustom = new UserCustom();
     //由于这里使用动态sql，如果不设置某个值，条件不会拼接在sql中
     userCustom.setSex("1");
     userCustom.setUsername("张三");
     userQueryVo.setUserCustom(userCustom);
-    //调用userMapper的方法		List<UserCustom> list =
+    //调用userMapper的方法
+        List<UserCustom> list =
     userMapper.findUserList(userQueryVo);
     System.out.println(list);
 }
@@ -119,7 +129,9 @@ mapper 文件 select * from student where name = #{ personName}
 @Param注释写在mapper接口里
 
 ```java
-/**    * 多个参数：命名参数，在形参定义的前面加入@Param("自定义参数名称")    */
+/**
+    * 多个参数：命名参数，在形参定义的前面加入@Param("自定义参数名称")
+    */
 public List<Student> selectMultiParam(@Param("myname") String name, @Param("myage") Integer age);
 ```
 

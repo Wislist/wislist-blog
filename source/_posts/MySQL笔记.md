@@ -23,15 +23,25 @@ tags:
 注意：每个数据库版本可能所支持的引擎有所不同
 
 ```java
-create database if not EXISTS db_studydefault character set utf8default collate utf8_general_ci;
+create database if not EXISTS db_study
+default character set utf8
+default collate utf8_general_ci;
 ```
 
 ### 0.3 创建数据表
 
 ```sql
 USING database(数据库名)
-    CREATE TABLE --数据表名--(	学号 CHAR(4)
-    PRIMARY KEY ,    姓名 varchar(20) NOT NULL ,    性别 varchar(5) DEFAULT '男' CHECK ( 性别='男' || 性别='女' ),    出生日期 date not null ,    专业 varchar(20) not null ,    院系 varchar(20) not null ,    联系电话 text);
+    CREATE TABLE --数据表名--
+    (
+        学号 CHAR(4) PRIMARY KEY,
+        姓名 varchar(20) NOT NULL,
+        性别 varchar(5) DEFAULT '男' CHECK (性别='男' || 性别='女'),
+        出生日期 date not null,
+        专业 varchar(20) not null,
+        院系 varchar(20) not null,
+        联系电话 text
+    );
 ```
 
 ## 一、查询数据
@@ -41,7 +51,9 @@ USING database(数据库名)
 要查询数据库表的数据
 
 ```sql
-SELECT * FROM students;== 其中 SELECT 是关键字 表示查询== ‘*’ 表示所有列  FROM 表示从哪个表查询
+SELECT * FROM students;
+== 其中 SELECT 是关键字 表示查询
+== ‘*’ 表示所有列  FROM 表示从哪个表查询
 ```
 
 注意：查询结果也是一个二维表，它包含列名和每一行的数据。
@@ -100,7 +112,8 @@ SELECT id, score, name FROM students;
 例如，以下`SELECT`语句将列名`score`重命名为`points`，而`id`和`name`列名保持不变：
 
 ```java
--- 使用投影查询，并将列名重命名：SELECT id, score points, name FROM students;
+-- 使用投影查询，并将列名重命名：
+SELECT id, score points, name FROM students;
 ```
 
 投影查询同样可以接`WHERE`条件，实现复杂的查询：
@@ -138,7 +151,10 @@ SELECT id, name, gender, score
 带WHERE条件的ORDER BY：
 
 ```java
-SELECT id, name, gender, scoreFROM studentsWHERE class_id = 1ORDER BY score DESC;
+SELECT id, name, gender, score
+FROM students
+WHERE class_id = 1
+ORDER BY score DESC;
 ```
 
 ### 1.5 分页查询
@@ -156,7 +172,11 @@ SELECT id, name, gender, score FROM students ORDER BY score DESC;
 现在，我们把结果集分页，每页3条记录。要获取第1页的记录，可以使用`LIMIT 3 OFFSET 0`：
 
 ```java
-==查询第一页SELECT id, name, gender, scoreFROM studentsORDER BY score DESCLIMIT 3 OFFSET 0;
+==查询第一页
+SELECT id, name, gender, score
+FROM students
+ORDER BY score DESC
+LIMIT 3 OFFSET 0;
 ```
 
 ==**LIMIT OFFSET **== 每页最多M行数据，从第N行开始显示。
@@ -174,7 +194,8 @@ SELECT COUNT(*) FROM students;
 聚合查询同样可以使用`WHERE`条件，因此我们可以方便地统计出有多少男生、多少女生、多少80分以上的学生等：
 
 ```sql
-SELECT COUNT(*) boys FROM students WHERE gender = 'M';==其中COUNT(*)和COUNT(id)是一样的效果
+SELECT COUNT(*) boys FROM students WHERE gender = 'M';
+==其中COUNT(*)和COUNT(id)是一样的效果
 ```
 
 除了`COUNT()`函数外，SQL还提供了如下聚合函数：
@@ -198,7 +219,8 @@ SELECT COUNT(*) num FROM students WHERE MAJ='计算机' UNION SELECT * FROM s;
 对于聚合查询，SQL还提供了“分组聚合”的功能。我们观察下面的聚合查询：
 
 ```java
--- 按class_id分组:SELECT COUNT(*) num FROM students GROUP BY class_id;
+-- 按class_id分组:
+SELECT COUNT(*) num FROM students GROUP BY class_id;
 ```
 
 ### 1.6 多表查询
@@ -220,7 +242,11 @@ SELECT * FROM students, classes;
 这时，连接查询就派上了用场。我们先使用最常用的一种内连接——INNER JOIN来实现：
 
 ```java
--- 选出所有学生，同时返回班级名称SELECT s.id, s.name, s.class_id, c.name class_name, s.gender, s.scoreFROM students sINNER JOIN classes cON s.class_id = c.id;
+-- 选出所有学生，同时返回班级名称
+SELECT s.id, s.name, s.class_id, c.name class_name, s.gender, s.score
+FROM students s
+INNER JOIN classes c
+ON s.class_id = c.id;
 ```
 
 注意INNER JOIN查询的写法是：
@@ -234,7 +260,10 @@ SELECT * FROM students, classes;
 那什么是内连接（INNER JOIN）呢？先别着急，有内连接（INNER JOIN）就有外连接（OUTER JOIN）。我们把内连接查询改成外连接查询，看看效果：
 
 ```java
-SELECT s.id, s.name, s.class_id, c.name class_name, s.gender, s.scoreFROM students sRIGHT OUTER JOIN classes cON s.class_id = c.id;
+SELECT s.id, s.name, s.class_id, c.name class_name, s.gender, s.score
+FROM students s
+RIGHT OUTER JOIN classes c
+ON s.class_id = c.id;
 ```
 
 ![1c2a1b2e3aac2dc0c372c71e8c1ecb5](https://gitee.com/wislist/img/raw/master/1c2a1b2e3aac2dc0c372c71e8c1ecb5.png)
@@ -252,14 +281,23 @@ RIGHT OUTER JOIN返回右表都存在的行。如果某一行仅在右表存在�
 LEFT OUTER JOIN则返回左表都存在的行。如果我们给students表增加一行，并添加class_id=5，由于classes表并不存在id=5的行，所以，LEFT OUTER JOIN的结果会增加一行，对应的`class_name`是`NULL`：
 
 ```java
-- 先增加一列class_id=5:INSERT INTO students (class_id, name, gender, score) values (5, '新生', 'M', 88);
--- 使用LEFT OUTER JOINSELECT s.id, s.name, s.class_id, c.name class_name, s.gender, s.scoreFROM students sLEFT OUTER JOIN classes cON s.class_id = c.id;
+- 先增加一列class_id=5:
+INSERT INTO students (class_id, name, gender, score) values (5, '新生', 'M', 88);
+-- 使用LEFT OUTER JOIN
+SELECT s.id, s.name, s.class_id, c.name class_name, s.gender, s.score
+FROM students s
+LEFT OUTER JOIN classes c
+ON s.class_id = c.id;
 ```
 
 最后，我们使用FULL OUTER JOIN，它会把两张表的所有记录全部选择出来，并且，自动把对方不存在的列填充为NULL：
 
 ```java
--- 使用FULL OUTER JOINSELECT s.id, s.name, s.class_id, c.name class_name, s.gender, s.scoreFROM students sFULL OUTER JOIN classes cON s.class_id = c.id;
+-- 使用FULL OUTER JOIN
+SELECT s.id, s.name, s.class_id, c.name class_name, s.gender, s.score
+FROM students s
+FULL OUTER JOIN classes c
+ON s.class_id = c.id;
 ```
 
 假设查询语句是
@@ -277,7 +315,13 @@ SELECT ... FROM tableA ??? JOIN tableB ON tableA.column1 = tableB.column2;
 #### ==**相关子查询** ==
 
 ```java
-select sno,snfrom swhere 'c1' in  (select cno                from sc                where sno = s.sno);
+select sno,sn
+from s
+where 'c1' in (
+    select cno
+    from sc
+    where sno = s.sno
+);
 ```
 
 一般可以写成`非相关子查询`
@@ -341,7 +385,10 @@ INSERT INTO <表名> (字段1, 字段2, ...) VALUES (值1, 值2, ...);
 要注意，字段顺序不必和数据库表的字段顺序一致，但值的顺序必须和字段顺序一致。也就是说，可以写`INSERT INTO students (score, gender, name, class_id) ...`，但是对应的`VALUES`就得变成`(80, 'M', '大牛', 2)`。 
 
 ```java
--- 一次性添加多条新记录INSERT INTO students (class_id, name, gender, score) VALUES  (1, '大宝', 'M', 87),  (2, '二宝', 'M', 81);
+-- 一次性添加多条新记录
+INSERT INTO students (class_id, name, gender, score) VALUES
+    (1, '大宝', 'M', 87),
+    (2, '二宝', 'M', 81);
 ```
 
 ### 2.2 更新数据
@@ -355,13 +402,16 @@ UPDATE <表名> SET 字段1=值1, 字段2=值2, ... WHERE ...;
 例如，我们想更新`students`表`id=1`的记录的`name`和`score`这两个字段，先写出`UPDATE students SET name='大牛', score=66`，然后在`WHERE`子句中写出需要更新的行的筛选条件`id=1`：
 
 ```java
--- 更新id=1的记录UPDATE students SET name='大牛', score=66 WHERE id=1;
+-- 更新id=1的记录
+UPDATE students SET name='大牛', score=66 WHERE id=1;
 ```
 
 注意到`UPDATE`语句的`WHERE`条件和`SELECT`语句的`WHERE`条件其实是一样的，因此完全可以一次更新多条记录：
 
 ```yml
--- 更新id=5,6,7的记录UPDATE students SET name='小牛', score=77 WHERE id>=5 AND id<=7;--将id为5 6 7 的name全部改成小牛 且对应的score都为77
+-- 更新id=5,6,7的记录
+UPDATE students SET name='小牛', score=77 WHERE id>=5 AND id<=7;
+--将id为5 6 7 的name全部改成小牛 且对应的score都为77
 ```
 
 其中，`SET score=score+10`就是给当前行的`score`字段的值加上了10。
@@ -369,7 +419,8 @@ UPDATE <表名> SET 字段1=值1, 字段2=值2, ... WHERE ...;
 如果`WHERE`条件没有匹配到任何记录，`UPDATE`语句不会报错，也不会有任何记录被更新。例如：
 
 ```java
--- 更新id=999的记录UPDATE students SET score=100 WHERE id=999;
+-- 更新id=999的记录
+UPDATE students SET score=100 WHERE id=999;
 ```
 
 ==最后，要特别小心的是，`UPDATE`语句可以没有`WHERE`条件==
@@ -428,7 +479,17 @@ mysql -h 10.0.1.99 -u root -p
 ```sql
 mysql> SHOW DATABASES;
 
-+--------------------+| Database           |+--------------------+| information_schema || mysql              || performance_schema || shici              || sys                || test               || school             |+--------------------+;
++--------------------+
+| Database           |
++--------------------+
+| information_schema |
+| mysql              |
+| performance_schema |
+| shici              |
+| sys                |
+| test               |
+| school             |
++--------------------+;
 ```
 
 其中，`information_schema`、`mysql`、`performance_schema`和`sys`是系统库，不要去改动它们。其他的是用户创建的数据库。
@@ -436,13 +497,15 @@ mysql> SHOW DATABASES;
 要创建一个新数据库，使用命令：
 
 ```java
-mysql> CREATE DATABASE test;Query OK, 1 row affected (0.01 sec)
+mysql> CREATE DATABASE test;
+Query OK, 1 row affected (0.01 sec)
 ```
 
 要删除一个数据库，使用命令：
 
 ```java
-mysql> DROP DATABASE test;Query OK, 0 rows affected (0.01 sec)
+mysql> DROP DATABASE test;
+Query OK, 0 rows affected (0.01 sec)
 ```
 
 注意：删除一个数据库将导致该数据库的所有表全部被删除。
@@ -450,7 +513,8 @@ mysql> DROP DATABASE test;Query OK, 0 rows affected (0.01 sec)
 对一个数据库进行操作时，要首先将其切换为当前数据库：
 
 ```java
-mysql> USE test;Database changed
+mysql> USE test;
+Database changed
 ```
 
 #### 表
@@ -460,14 +524,29 @@ mysql> USE test;Database changed
 ```sql
 mysql> SHOW TABLES;
 
-+---------------------+| Tables_in_test      |+---------------------+| classes             || statistics          || students            || students_of_class1  |+---------------------+;
++---------------------+
+| Tables_in_test      |
++---------------------+
+| classes             |
+| statistics          |
+| students            |
+| students_of_class1  |
++---------------------+;
 ```
 
 要查看一个表的结构，使用命令：
 
 ```java
 mysql> DESC students;
-+----------+--------------+------+-----+---------+----------------+| Field    | Type         | Null | Key | Default | Extra          |+----------+--------------+------+-----+---------+----------------+| id       | bigint(20)   | NO   | PRI | NULL    | auto_increment || class_id | bigint(20)   | NO   |     | NULL    |                || name     | varchar(100) | NO   |     | NULL    |                || gender   | varchar(1)   | NO   |     | NULL    |                || score    | int(11)      | NO   |     | NULL    |                |+----------+--------------+------+-----+---------+----------------+
++----------+--------------+------+-----+---------+----------------+
+| Field    | Type         | Null | Key | Default | Extra          |
++----------+--------------+------+-----+---------+----------------+
+| id       | bigint(20)   | NO   | PRI | NULL    | auto_increment |
+| class_id | bigint(20)   | NO   |     | NULL    |                |
+| name     | varchar(100) | NO   |     | NULL    |                |
+| gender   | varchar(1)   | NO   |     | NULL    |                |
+| score    | int(11)      | NO   |     | NULL    |                |
++----------+--------------+------+-----+---------+----------------+
 ```
 
 查看创建表的SQL语句：
@@ -476,11 +555,16 @@ mysql> DESC students;
 mysql> SHOW
     CREATE TABLE students;
 
-+----------+-------------------------------------------------------+| students |
-    CREATE TABLE `students` (                             ||          |   `id` bigint(20) NOT NULL AUTO_INCREMENT,            ||          |   `class_id` bigint(20) NOT NULL,                     ||          |   `name` varchar(100) NOT NULL,                       ||          |   `gender` varchar(1) NOT NULL,                       ||          |   `score` int(11) NOT NULL,                           ||          |
-    PRIMARY KEY (`id`)                                  ||          | )
-    ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHAR
-    SET=utf8 |+----------+-------------------------------------------------------+;
++----------+-------------------------------------------------------+
+| students | CREATE TABLE `students` (                             |
+|          |   `id` bigint(20) NOT NULL AUTO_INCREMENT,             |
+|          |   `class_id` bigint(20) NOT NULL,                      |
+|          |   `name` varchar(100) NOT NULL,                        |
+|          |   `gender` varchar(1) NOT NULL,                        |
+|          |   `score` int(11) NOT NULL,                            |
+|          |   PRIMARY KEY (`id`)                                  |
+|          | ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8   |
++----------+-------------------------------------------------------+;
 ```
 
 创建表使用`CREATE TABLE`语句，而删除表使用`DROP TABLE`语句：
@@ -553,7 +637,12 @@ INSERT IGNORE INTO students (id, class_id, name, gender, score) VALUES (1, 1, '�
 例如，创建一个统计成绩的表`statistics`，记录各班的平均成绩：
 
 ```java
-CREATE TABLE statistics (    id BIGINT NOT NULL AUTO_INCREMENT,    class_id BIGINT NOT NULL,    average DOUBLE NOT NULL,    PRIMARY KEY (id));
+CREATE TABLE statistics (
+    id BIGINT NOT NULL AUTO_INCREMENT,
+    class_id BIGINT NOT NULL,
+    average DOUBLE NOT NULL,
+    PRIMARY KEY (id)
+);
 ```
 
 然后，我们就可以用一条语句写入各班的平均成绩：
@@ -572,8 +661,14 @@ INSERT INTO statistics (class_id, average)
     SELECT *
     FROM statistics;
 
-+----+----------+--------------+| id | class_id | average      |+----+----------+--------------+|  1 |        1 |         86.5 ||  2 |        2 | 73.666666666 ||  3 |        3 | 88.333333333 |+----+----------+--------------+3 rows in
-    set (0.00 sec);
++----+----------+--------------+
+| id | class_id | average      |
++----+----------+--------------+
+|  1 |        1 |         86.5 |
+|  2 |        2 | 73.666666666 |
+|  3 |        3 | 88.333333333 |
++----+----------+--------------+
+3 rows in set (0.00 sec);
 ```
 
 #### 强制使用指定索引
@@ -695,7 +790,11 @@ Serializable是最严格的隔离级别。在Serializable隔离级别下，所�
 ### Q2、找出运行时间最长的 10 部“科幻”作品
 
 ```java
-SELECT primary_title,premiered,runtime_minutesfrom titleswhere genres = 'Fantasy'order by runtime_minutes desclimit 10;
+SELECT primary_title,premiered,runtime_minutes
+from titles
+where genres = 'Fantasy'
+order by runtime_minutes desc
+limit 10;
 ```
 
 **注意** ： ==order by== 默认是 ASC
@@ -703,7 +802,11 @@ SELECT primary_title,premiered,runtime_minutesfrom titleswhere genres = 'Fantasy
 ### Q3、确定数据集中出生于 1900 年或之后的最年长的人。 您应该假设一个没有已知死亡年份的人还活着。
 
 ```java
-select name,2023-people.born as agefrom peoplewhere born>=1900 and died is not nullorder by age desclimit 20;
+select name,2023-people.born as age
+from people
+where born>=1900 and died is not null
+order by age desc
+limit 20;
 ```
 
 **注意** ：died 为null的人也要考虑  
@@ -716,7 +819,17 @@ select name,2023-people.born as agefrom peoplewhere born>=1900 and died is not n
 **详：** 获取平均评分（四舍五入到小数点后两位）、最高评分、 最小评级，以及每个十年的发布数量。排除标题 尚未首映（即首映的地方）。打印相关 通过构造如下所示的字符串，以更高级的格式进行十年：.按其平均评分降序排列十年 时尚，其次是十年，上升，打破联系。
 
 ```java
-SELECT  CAST(premiered/10*10 AS TEXT) || 's' AS decade,  ROUND(AVG(rating), 2) as avg_rating,  MAX(rating) as top_rating,  MIN(rating) as min_rating,  COUNT(*) as num_releasesFROM     titlesINNER JOIN     ratings ON titles.title_id = ratings.title_idWHERE premiered IS NOT NULLGROUP BY decadeORDER BY avg_rating DESC, decade ASC;
+SELECT
+    CAST(premiered/10*10 AS TEXT) || 's' AS decade,
+    ROUND(AVG(rating), 2) as avg_rating,
+    MAX(rating) as top_rating,
+    MIN(rating) as min_rating,
+    COUNT(*) as num_releases
+FROM titles
+INNER JOIN ratings ON titles.title_id = ratings.title_id
+WHERE premiered IS NOT NULL
+GROUP BY decade
+ORDER BY avg_rating DESC, decade ASC;
 ```
 
 ### Q5、查找最常作为机组人员出现的人员。
@@ -724,7 +837,12 @@ SELECT  CAST(premiered/10*10 AS TEXT) || 's' AS decade,  ROUND(AVG(rating), 2) a
 **详：** 打印20人的姓名和出场次数 按出场次数排序的船员出场次数最多 以下降的方式。
 
 ```java
-select p.name , count(*) as num_appearancesfrom people pjoin crew c on p.person_id = c.person_idgroup by p.person_idorder by count(*) desc, p.namelimit 20;
+select p.name, count(*) as num_appearances
+from people p
+join crew c on p.person_id = c.person_id
+group by p.person_id
+order by count(*) desc, p.name
+limit 20;
 ```
 
 ### Q6、确定与带有“Cruise”的人一起最受欢迎的作品 姓名，出生于1962年。
@@ -732,7 +850,16 @@ select p.name , count(*) as num_appearancesfrom people pjoin crew c on p.person_
 **详：** 获得剧组中有人得票最多的作品 他们的名字中有“克鲁斯”，出生于 1962 年。返回 工作和票数，并仅列出前 10 个结果，顺序从 从多到少的选票。请确保输出的格式如下：`Top Gun|408389`、
 
 ```java
-SELECT    titles.primary_title AS name,    ratings.votes AS votesFROM      titlesINNER JOIN      ratings ON titles.title_id = ratings.title_idINNER JOIN	crew ON titles.title_id = crew.title_idINNER JOIN      people ON crew.person_id = people.person_idWHERE people.name LIKE "%Cruise%" AND people.born = 1962ORDER BY votes DESCLIMIT 10;
+SELECT
+    titles.primary_title AS name,
+    ratings.votes AS votes
+FROM titles
+INNER JOIN ratings ON titles.title_id = ratings.title_id
+INNER JOIN crew ON titles.title_id = crew.title_id
+INNER JOIN people ON crew.person_id = people.person_id
+WHERE people.name LIKE "%Cruise%" AND people.born = 1962
+ORDER BY votes DESC
+LIMIT 10;
 ```
 
 **注意** ：`LIKE` 后加模糊搜索
@@ -754,7 +881,15 @@ ps :在书写markdown文本中 遇到冲突可以使用==“\”==(反斜杠)来
 **详：** 仅打印作品总数。答案应该包括 “盗贼军团”本身。对于这个问题，通过以下方式确定不同的作品 他们的名字，而不是他们的名字。`title_id`
 
 ```java
-with premiered as (    select premiered    from titles    where primary_title = 'Army of Thieves')select count(*) as TITLE_IDfrom titles twhere premiered = premieredorder by TITLE_ID desc ;
+with premiered as (
+    select premiered
+    from titles
+    where primary_title = 'Army of Thieves'
+)
+select count(*) as TITLE_ID
+from titles t
+where premiered = premiered
+order by TITLE_ID desc ;
 ```
 
 如果遇到大型和复杂的问题 我们可以考虑将其分为多个子问题 并用**`WITH AS`**语句来解决

@@ -29,7 +29,9 @@ tags:
 在命令行中输入以下代码
 
 ```yml
-d:cd D:\mysql-8.0.19-winx64\bin(此处输入自己电脑上的安装目录)mysql -u root -p
+d:
+cd D:\mysql-8.0.19-winx64\bin(此处输入自己电脑上的安装目录)
+mysql -u root -p
 ```
 
 此时会显示让你输入密码，直接回车，就可以成功连接Mysql。
@@ -47,7 +49,8 @@ use mysql;
     set authentication_string=''
     where user='root';
 
-（将密码置为空）quit;
+（将密码置为空）
+quit;
 
 (然后退出Mysql);
 ```
@@ -61,13 +64,16 @@ use mysql;
 ##### 2.在第二个窗口中输入代码；
 
 ```yml
-net stop mysql(关闭mysql服务,虽然会显示没有开启服务，但是以防万一)net start mysql(再打开mysql服务)
+net stop mysql(关闭mysql服务,虽然会显示没有开启服务，但是以防万一)
+net start mysql(再打开mysql服务)
 ```
 
 接着输入：
 
 ```yml
-cd D:\mysql-8.0.19-winx64\bin  (此处输入自己电脑上的安装目录)mysql -u root -p(此处会显示输入密码，直接回车就好了，第四步我们已经将他置为空了)ALTER USER 'root'@'localhost' IDENTIFIED BY 'root';（更改密码）
+cd D:\mysql-8.0.19-winx64\bin  (此处输入自己电脑上的安装目录)
+mysql -u root -p(此处会显示输入密码，直接回车就好了，第四步我们已经将他置为空了)
+ALTER USER 'root'@'localhost' IDENTIFIED BY 'root';（更改密码）
 ```
 
 #### 最后一步：验证密码是否修改成功
@@ -75,5 +81,6 @@ cd D:\mysql-8.0.19-winx64\bin  (此处输入自己电脑上的安装目录)mysql
 输入：
 
 ```yml
-quit（退出mysql）mysql -u root -p (输入新密码，再次登录)
+quit（退出mysql）
+mysql -u root -p (输入新密码，再次登录)
 ```

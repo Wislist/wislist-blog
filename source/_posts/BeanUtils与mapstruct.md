@@ -15,7 +15,8 @@ tags:
 MapStruct和BeanUtils都是Java中常用的对象属性映射工具，但它们在使用方式和性能上有一些区别
 
 ```xml
-@Mapperpublic
+@Mapper
+public
 interface CarMapper {
     @BeanMapping(resultType
     = CarDto.class, ignoreByDefault = true, mappingControl = MappingControl.FILTER)
@@ -24,7 +25,8 @@ interface CarMapper {
     @Mapping(source
     = "model", target = "modelName")
     @Mapping(condition
-    = "java(source.getAge() >= 18)", target = "isAdult")    CarDto map(Car car);
+    = "java(source.getAge() >= 18)", target = "isAdult")
+    CarDto map(Car car);
 }
 ```
 

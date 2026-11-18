@@ -62,19 +62,27 @@ import java.sql.SQLException;
 /** * Created by Administrator on 2016/2/21. */
 public class JdbcTest {
     public static void main(String[] args) {
-        //数据库连接        Connection connection = null;        //预编译的Statement，使用预编译的Statement提高数据库性能        PreparedStatement preparedStatement = null;        //结果集        ResultSet resultSet = null;
+        //数据库连接
+        Connection connection = null;
+        //预编译的Statement，使用预编译的Statement提高数据库性能
+        PreparedStatement preparedStatement = null;
+        //结果集
+        ResultSet resultSet = null;
         try {
             //加载数据库驱动
             Class.forName("com.mysql.jdbc.Driver");
-            //通过驱动管理类获取数据库链接            connection =
+            //通过驱动管理类获取数据库链接
+            connection =
             DriverManager.getConnection("jdbc:mysql://120.25.162.238:3306/mybatis001?characterEncoding=utf-8", "root", "123");
             //定义sql语句 ?表示占位符
             String sql = "select * from user where username = ?";
-            //获取预处理statement            preparedStatement =
+            //获取预处理statement
+            preparedStatement =
             connection.prepareStatement(sql);
             //设置参数，第一个参数为sql语句中参数的序号（从1开始），第二个参数为设置的参数值
             preparedStatement.setString(1, "王五");
-            //向数据库发出sql执行查询，查询出结果集            resultSet =
+            //向数据库发出sql执行查询，查询出结果集
+            resultSet =
             preparedStatement.executeQuery();
             //遍历查询结果集
             while(resultSet.next()){
@@ -91,8 +99,8 @@ public class JdbcTest {
                     resultSet.close();
                 }
                 catch (SQLException e) {
-                    // TODO Auto-generated
-                    catch block                    e.printStackTrace();
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
                 }
             }
             if(preparedStatement!=null){
@@ -100,8 +108,8 @@ public class JdbcTest {
                     preparedStatement.close();
                 }
                 catch (SQLException e) {
-                    // TODO Auto-generated
-                    catch block                    e.printStackTrace();
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
                 }
             }
             if(connection!=null){
@@ -109,8 +117,8 @@ public class JdbcTest {
                     connection.close();
                 }
                 catch (SQLException e) {
-                    // TODO Auto-generated
-                    catch block                    e.printStackTrace();
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
                 }
             }
         }
@@ -202,16 +210,30 @@ MybatisFirst 是测试用的 po文件夹里写的是类 数据库字段是什么
 
 ```xml
 <?xml version="1.0" encoding="UTF-8" ?>
-    <!DOCTYPE mapper        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+    <!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
     <!-- namespace 命名空间，作用就是对sql进行分类化管理,理解为sql隔离 注意：使用mapper代理方法开发，namespace有特殊重要的作用 -->
     <mapper namespace="test">
         <!-- 在映射文件中配置很多sql语句 -->
         <!--需求:通过id查询用户表的记录 -->
-        <!-- 通过select执行数据库查询     id:标识映射文件中的sql，称为statement的id     将sql语句封装到mappedStatement对象中，所以将id称为statement的id     parameterType:指定输入参数的类型     #{}标示一个占位符,     #{value}其中value表示接收输入参数的名称，如果输入参数是简单类型，那么#{}中的值可以任意。     resultType：指定sql输出结果的映射的java对象类型，select指定resultType表示将单条记录映射成java对象     -->
+        <!-- 通过select执行数据库查询
+     id:标识映射文件中的sql，称为statement的id
+     将sql语句封装到mappedStatement对象中，所以将id称为statement的id
+     parameterType:指定输入参数的类型
+     #{}标示一个占位符,
+     #{value}其中value表示接收输入参数的名称，如果输入参数是简单类型，那么#{}中的值可以任意。
+     resultType：指定sql输出结果的映射的java对象类型，select指定resultType表示将单条记录映射成java对象
+     -->
         <select id="findUserById" parameterType="int" resultType="po.User">
             SELECT * FROM  users.user  WHERE userId =#{value}
         </select>
-        <!-- 根据用户名称模糊查询用户信息，可能返回多条	resultType：指定就是单条记录所映射的java对象类型	${}:表示拼接sql串，将接收到参数的内容不加任何修饰拼接在sql中。	使用${}拼接sql，引起 sql注入	${value}：接收输入参数的内容，如果传入类型是简单类型，${}中只能使用value	 -->
+        <!-- 根据用户名称模糊查询用户信息，可能返回多条
+    resultType：指定就是单条记录所映射的java对象类型
+    ${}:表示拼接sql串，将接收到参数的内容不加任何修饰拼接在sql中。
+    使用${}拼接sql，引起 sql注入
+    ${value}：接收输入参数的内容，如果传入类型是简单类型，${}中只能使用value
+     -->
         <select id="findUserByName" parameterType="java.lang.String" resultType="po.User">
             SELECT * FROM users.user WHERE username LIKE '%${value}%'
         </select>
@@ -222,7 +244,9 @@ MybatisFirst 是测试用的 po文件夹里写的是类 数据库字段是什么
 
 ```xml
 <?xml version="1.0" encoding="UTF-8" ?>
-    <!DOCTYPE configuration        PUBLIC "-//mybatis.org//DTD Config 3.0//EN"        "http://mybatis.org/dtd/mybatis-3-config.dtd">
+    <!DOCTYPE configuration
+        PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-config.dtd">
     <configuration>
         <!-- 和spring整合后 environments配置将废除-->
         <environments default="development">
@@ -274,13 +298,21 @@ public class MybatisFirst {
     public void findUserByIdTest() throws IOException{
         // mybatis配置文件
         String resource = "SqlMapConfig.xml";
-        // 得到配置文件流        InputStream inputStream =
+        // 得到配置文件流
+        InputStream inputStream =
         Resources.getResourceAsStream(resource);
-        //创建会话工厂，传入mybatis配置文件的信息        SqlSessionFactory sqlSessionFactory =
+        //创建会话工厂，传入mybatis配置文件的信息
+        SqlSessionFactory sqlSessionFactory =
         new SqlSessionFactoryBuilder().build(inputStream);
-        // 通过工厂得到SqlSession        SqlSession sqlSession =
+        // 通过工厂得到SqlSession
+        SqlSession sqlSession =
         sqlSessionFactory.openSession();
-        // 通过SqlSession操作数据库        // 第一个参数：映射文件中statement的id，等于=namespace+"."+statement的id        // 第二个参数：指定和映射文件中所匹配的parameterType类型的参数        // sqlSession.selectOne结果 是与映射文件中所匹配的resultType类型的对象        // selectOne查询出一条记录        User user =
+        // 通过SqlSession操作数据库
+        // 第一个参数：映射文件中statement的id，等于=namespace+"."+statement的id
+        // 第二个参数：指定和映射文件中所匹配的parameterType类型的参数
+        // sqlSession.selectOne结果 是与映射文件中所匹配的resultType类型的对象
+        // selectOne查询出一条记录
+        User user =
         sqlSession.selectOne("test.findUserById", 1);
         System.out.println(user);
         // 释放资源
@@ -291,13 +323,18 @@ public class MybatisFirst {
     public void findUserByNameTest() throws IOException {
         // mybatis配置文件
         String resource = "SqlMapConfig.xml";
-        // 得到配置文件流        InputStream inputStream =
+        // 得到配置文件流
+        InputStream inputStream =
         Resources.getResourceAsStream(resource);
-        // 创建会话工厂，传入mybatis的配置文件信息        SqlSessionFactory sqlSessionFactory =
-        new SqlSessionFactoryBuilder()                .build(inputStream);
-        // 通过工厂得到SqlSession        SqlSession sqlSession =
+        // 创建会话工厂，传入mybatis的配置文件信息
+        SqlSessionFactory sqlSessionFactory =
+        new SqlSessionFactoryBuilder()
+                .build(inputStream);
+        // 通过工厂得到SqlSession
+        SqlSession sqlSession =
         sqlSessionFactory.openSession();
-        // list中的user和映射文件中resultType所指定的类型一致        List<User> list =
+        // list中的user和映射文件中resultType所指定的类型一致
+        List<User> list =
         sqlSession.selectList("test.findUserByName", "小明");
         System.out.println(list);
         sqlSession.close();
@@ -353,7 +390,8 @@ public class User {
     }
     @Override
     public String toString() {
-        return "User [id=" + id + ", username=" + username + ", sex=" + sex                + ", birthday=" + birthday + ", address=" + address + "]";
+        return "User [id=" + id + ", username=" + username + ", sex=" + sex
+                + ", birthday=" + birthday + ", address=" + address + "]";
     }
 }
 ```
@@ -369,23 +407,43 @@ public class User {
 将下面的添加到xml中
 
 ```sql
-<!-- 添加用户    parameterType：指定输入 参数类型是pojo（包括 用户信息）    #{}中指定pojo的属性名，接收到pojo对象的属性值，mybatis通过OGNL获取对象的属性值    -->
+<!-- 添加用户
+    parameterType：指定输入 参数类型是pojo（包括 用户信息）
+    #{}中指定pojo的属性名，接收到pojo对象的属性值，mybatis通过OGNL获取对象的属性值
+    -->
 <insert id="insertUser" parameterType="com.iot.mybatis.po.User">
-    <!--     将插入数据的主键返回，返回到user对象中     SELECT LAST_INSERT_ID()：得到刚insert进去记录的主键值，只适用与自增主键     keyProperty：将查询到主键值设置到parameterType指定的对象的哪个属性     order：SELECT LAST_INSERT_ID()执行顺序，相对于insert语句来说它的执行顺序     resultType：指定SELECT LAST_INSERT_ID()的结果类型      -->
+    <!--
+     将插入数据的主键返回，返回到user对象中
+     SELECT LAST_INSERT_ID()：得到刚insert进去记录的主键值，只适用与自增主键
+     keyProperty：将查询到主键值设置到parameterType指定的对象的哪个属性
+     order：SELECT LAST_INSERT_ID()执行顺序，相对于insert语句来说它的执行顺序
+     resultType：指定SELECT LAST_INSERT_ID()的结果类型
+      -->
     <selectKey keyProperty="id" order="AFTER" resultType="java.lang.Integer">
         SELECT LAST_INSERT_ID()
     </selectKey>
     INSERT INTO user (username,birthday,sex,address)values (#{username},#{birthday},#{sex},#{address})
-    <!--        使用mysql的uuid（）生成主键        执行过程：        首先通过uuid()得到主键，将主键设置到user对象的id属性中        其次在insert执行时，从user对象中取出id属性值         -->
-    <!--  <selectKey keyProperty="id" order="BEFORE" resultType="java.lang.String">        SELECT uuid()    </selectKey>    insert into user(id,username,birthday,sex,address) value(#{id},#{username},#{birthday},#{sex},#{address}) -->
+    <!--
+        使用mysql的uuid（）生成主键
+        执行过程：
+        首先通过uuid()得到主键，将主键设置到user对象的id属性中
+        其次在insert执行时，从user对象中取出id属性值
+         -->
+    <!--  <selectKey keyProperty="id" order="BEFORE" resultType="java.lang.String">
+        SELECT uuid()
+    </selectKey>
+    insert into user(id,username,birthday,sex,address) value(#{id},#{username},#{birthday},#{sex},#{address}) -->
 </insert>
-<!-- 删除 用户    根据id删除用户，需要输入 id值     -->
+<!-- 删除 用户
+    根据id删除用户，需要输入 id值
+     -->
 <delete id="deleteUser" parameterType="java.lang.Integer">
     delete from user where id=#{id}
 </delete>
 <!-- 根据id更新用户分析：需要传入用户的id需要传入用户的更新信息parameterType指定user对象，包括 id和更新信息，注意：id必须存在#{id}：从输入 user对象中获取id属性值 -->
 <update id="updateUser" parameterType="com.iot.mybatis.po.User">
-    update user set username=#{username},birthday=#{birthday},sex=#{sex},address=#{address}    where id=#{id}
+    update user set username=#{username},birthday=#{birthday},sex=#{sex},address=#{address}
+    where id=#{id}
 </update>
 ```
 
@@ -397,13 +455,18 @@ public class User {
 public void insertUserTest() throws IOException {
     // mybatis配置文件
     String resource = "SqlMapConfig.xml";
-    // 得到配置文件流      InputStream inputStream =
+    // 得到配置文件流
+      InputStream inputStream =
     Resources.getResourceAsStream(resource);
-    // 创建会话工厂，传入mybatis的配置文件信息      SqlSessionFactory sqlSessionFactory =
-    new SqlSessionFactoryBuilder()              .build(inputStream);
-    // 通过工厂得到SqlSession      SqlSession sqlSession =
+    // 创建会话工厂，传入mybatis的配置文件信息
+      SqlSessionFactory sqlSessionFactory =
+    new SqlSessionFactoryBuilder()
+              .build(inputStream);
+    // 通过工厂得到SqlSession
+      SqlSession sqlSession =
     sqlSessionFactory.openSession();
-    // 插入用户对象      User user =
+    // 插入用户对象
+      User user =
     new User();
     user.setUsername("王小军");
     user.setBirthday(new Date());
@@ -422,11 +485,15 @@ public void insertUserTest() throws IOException {
 public void deleteUserTest() throws IOException {
     // mybatis配置文件
     String resource = "SqlMapConfig.xml";
-    // 得到配置文件流      InputStream inputStream =
+    // 得到配置文件流
+      InputStream inputStream =
     Resources.getResourceAsStream(resource);
-    // 创建会话工厂，传入mybatis的配置文件信息      SqlSessionFactory sqlSessionFactory =
-    new SqlSessionFactoryBuilder()              .build(inputStream);
-    // 通过工厂得到SqlSession      SqlSession sqlSession =
+    // 创建会话工厂，传入mybatis的配置文件信息
+      SqlSessionFactory sqlSessionFactory =
+    new SqlSessionFactoryBuilder()
+              .build(inputStream);
+    // 通过工厂得到SqlSession
+      SqlSession sqlSession =
     sqlSessionFactory.openSession();
     // 传入id删除 用户
     sqlSession.delete("test.deleteUser", 29);
@@ -440,13 +507,18 @@ public void deleteUserTest() throws IOException {
 public void updateUserTest() throws IOException {
     // mybatis配置文件
     String resource = "SqlMapConfig.xml";
-    // 得到配置文件流      InputStream inputStream =
+    // 得到配置文件流
+      InputStream inputStream =
     Resources.getResourceAsStream(resource);
-    // 创建会话工厂，传入mybatis的配置文件信息      SqlSessionFactory sqlSessionFactory =
-    new SqlSessionFactoryBuilder()              .build(inputStream);
-    // 通过工厂得到SqlSession      SqlSession sqlSession =
+    // 创建会话工厂，传入mybatis的配置文件信息
+      SqlSessionFactory sqlSessionFactory =
+    new SqlSessionFactoryBuilder()
+              .build(inputStream);
+    // 通过工厂得到SqlSession
+      SqlSession sqlSession =
     sqlSessionFactory.openSession();
-    // 更新用户信息      User user =
+    // 更新用户信息
+      User user =
     new User();
     //必须设置id
     user.setId(27);
@@ -470,9 +542,23 @@ public void updateUserTest() throws IOException {
 <selectKey keyProperty="id" order="AFTER" resultType="java.lang.Integer">
     SELECT LAST_INSERT_ID()
 </selectKey>
-<!--            使用mysql的uuid（）生成主键            执行过程：            首先通过uuid()得到主键，将主键设置到user对象的id属性中            其次在insert执行时，从user对象中取出id属性值             -->
-<!--  <selectKey keyProperty="id" order="BEFORE" resultType="java.lang.String">            SELECT uuid()        </selectKey>        insert into user(id,username,birthday,sex,address) value(#{id},#{username},#{birthday},#{sex},#{address}) -->
-<!--         将插入数据的主键返回，返回到user对象中         SELECT LAST_INSERT_ID()：得到刚insert进去记录的主键值，只适用与自增主键         keyProperty：将查询到主键值设置到parameterType指定的对象的哪个属性         order：SELECT LAST_INSERT_ID()执行顺序，相对于insert语句来说它的执行顺序         resultType：指定SELECT LAST_INSERT_ID()的结果类型          -->
+<!--
+            使用mysql的uuid（）生成主键
+            执行过程：
+            首先通过uuid()得到主键，将主键设置到user对象的id属性中
+            其次在insert执行时，从user对象中取出id属性值
+             -->
+<!--  <selectKey keyProperty="id" order="BEFORE" resultType="java.lang.String">
+            SELECT uuid()
+        </selectKey>
+        insert into user(id,username,birthday,sex,address) value(#{id},#{username},#{birthday},#{sex},#{address}) -->
+<!--
+         将插入数据的主键返回，返回到user对象中
+         SELECT LAST_INSERT_ID()：得到刚insert进去记录的主键值，只适用与自增主键
+         keyProperty：将查询到主键值设置到parameterType指定的对象的哪个属性
+         order：SELECT LAST_INSERT_ID()执行顺序，相对于insert语句来说它的执行顺序
+         resultType：指定SELECT LAST_INSERT_ID()的结果类型
+          -->
 ```
 
 ### 总结一下

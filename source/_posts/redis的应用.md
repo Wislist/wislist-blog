@@ -38,18 +38,25 @@ import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 public class RedisID {
-    /**     * 开始时间戳     */
+    /**
+     * 开始时间戳
+     */
     private static final long BEGIN_TIMESTAMP = 1724919688L;
-    /**     * 序列号的位数     * @param args     */
+    /**
+     * 序列号的位数
+     * @param args
+     */
     private static final int COUNT_BITS = 32;
     @Resource
     private StringRedisTemplate stringRedisTemplate;
     public long nextID(String keyPrefix){
-        //1、生成时间戳        LocalDateTime now =
+        //1、生成时间戳
+        LocalDateTime now =
         LocalDateTime.now();
         long nowSecond  = now.toEpochSecond(ZoneOffset.UTC);
         long timestamp = nowSecond - BEGIN_TIMESTAMP;
-        //2、生成序列号        //2.1获取当前日期，精确到天
+        //2、生成序列号
+        //2.1获取当前日期，精确到天
         String date = now.format(DateTimeFormatter.ofPattern("yyyy:MM:dd"));
         //2.2自增长
         long count = stringRedisTemplate.opsForValue().increment("icr:"+keyPrefix+":"+date);
@@ -113,7 +120,8 @@ tb_seckill_voucher：优惠券的库存、开始抢购时间，结束抢购时�
 **新增普通卷代码： **VoucherController
 
 ```java
-@PostMappingpublic
+@PostMapping
+public
 Result addVoucher(@RequestBody Voucher voucher) {
     voucherService.save(voucher);
     return Result.ok(voucher.getId());
@@ -136,9 +144,13 @@ public Result addSeckillVoucher(@RequestBody Voucher voucher) {
 
 ```java
 @Override
-@Transactionalpublic
+@Transactional
+public
 void addSeckillVoucher(Voucher voucher) {
-    // 保存优惠券    save(voucher);    // 保存秒杀信息    SeckillVoucher seckillVoucher =
+    // 保存优惠券
+    save(voucher);
+    // 保存秒杀信息
+    SeckillVoucher seckillVoucher =
     new SeckillVoucher();
     seckillVoucher.setVoucherId(voucher.getId());
     seckillVoucher.setStock(voucher.getStock());
@@ -160,7 +172,9 @@ if (voucher.getStock() < 1) {
     return Result.fail("库存不足！");
 }
 //5，扣减库存
-boolean success = seckillVoucherService.update()           .setSql("stock= stock -1")           .eq("voucher_id", voucherId).update();
+boolean success = seckillVoucherService.update()
+           .setSql("stock= stock -1")
+           .eq("voucher_id", voucherId).update();
 if (!success) {
     //扣减库存
     return Result.fail("库存不足！");
@@ -226,7 +240,8 @@ i与1进行比较，if相等，则说明没被其他线程修改，可以被设�
 private void createVoucherOrder(VoucherOrder voucherOrder) {
     Long userId = voucherOrder.getUserId();
     Long voucherId = voucherOrder.getVoucherId();
-    // 创建锁对象       RLock redisLock =
+    // 创建锁对象
+       RLock redisLock =
     redissonClient.getLock("lock:order:" + userId);
     // 尝试获取锁
     boolean isLock = redisLock.tryLock();
@@ -246,14 +261,18 @@ private void createVoucherOrder(VoucherOrder voucherOrder) {
             return;
         }
         // 6.扣减库存
-        boolean success = seckillVoucherService.update()                   .setSql("stock = stock - 1")
-        // set stock = stock - 1                   .eq("voucher_id", voucherId).gt("stock", 0) // where id = ? and stock > 0                   .update();
+        boolean success = seckillVoucherService.update()
+                   .setSql("stock = stock - 1")
+        // set stock = stock - 1
+                   .eq("voucher_id", voucherId).gt("stock", 0) // where id = ? and stock > 0
+                   .update();
         if (!success) {
             // 扣减失败
             log.error("库存不足！");
             return;
         }
-        // 7.创建订单           save(voucherOrder);
+        // 7.创建订单
+           save(voucherOrder);
     }
     finally {
         // 释放锁
@@ -269,7 +288,9 @@ private void createVoucherOrder(VoucherOrder voucherOrder) {
 **第二种** 、之前的方式要修改前后都保持一致，但是这样我们分析过，成功的概率太低，所以我们的乐观锁需要变一下，改成stock大于0 即可
 
 ```java
-boolean success = seckillVoucherService.update()            .setSql("stock= stock -1")            .eq("voucher_id", voucherId).update().gt("stock",0);
+boolean success = seckillVoucherService.update()
+            .setSql("stock= stock -1")
+            .eq("voucher_id", voucherId).update().gt("stock",0);
 //where id = ? and stock > 0
 ```
 
@@ -296,9 +317,11 @@ Java8 提供的一个对AtomicLong改进后的一个类，LongAdder
 我们先试试：
 
 ```java
-@Overridepublic
+@Override
+public
 Result seckillVoucher(Long voucherId) {
-    // 1.查询优惠券    SeckillVoucher voucher =
+    // 1.查询优惠券
+    SeckillVoucher voucher =
     seckillVoucherService.getById(voucherId);
     // 2.判断秒杀是否开始
     if (voucher.getBeginTime().isAfter(LocalDateTime.now())) {
@@ -315,7 +338,9 @@ Result seckillVoucher(Long voucherId) {
         // 库存不足
         return Result.fail("库存不足！");
     }
-    // 5.一人一单逻辑    // 5.1.用户id    Long userId =
+    // 5.一人一单逻辑
+    // 5.1.用户id
+    Long userId =
     UserHolder.getUser().getId();
     int count = query().eq("user_id", userId).eq("voucher_id", voucherId).count();
     // 5.2.判断是否存在
@@ -324,12 +349,15 @@ Result seckillVoucher(Long voucherId) {
         return Result.fail("用户已经购买过一次！");
     }
     //6，扣减库存
-    boolean success = seckillVoucherService.update()            .setSql("stock= stock -1")            .eq("voucher_id", voucherId).update();
+    boolean success = seckillVoucherService.update()
+            .setSql("stock= stock -1")
+            .eq("voucher_id", voucherId).update();
     if (!success) {
         //扣减库存
         return Result.fail("库存不足！");
     }
-    //7.创建订单    VoucherOrder voucherOrder =
+    //7.创建订单
+    VoucherOrder voucherOrder =
     new VoucherOrder();
     // 7.1.订单id
     long orderId = redisIdWorker.nextId("order");
@@ -347,7 +375,8 @@ Result seckillVoucher(Long voucherId) {
 **notice：** 我们的初始方案是封装一个creatVoucherOrder方法，同时未来确保他线程安全，在方法上添加一把synchronized锁
 
 ```java
-@Transactionalpublic synchronized Result createVoucherOrder(Long voucherId)
+@Transactional
+public synchronized Result createVoucherOrder(Long voucherId)
 ```
 
 但是这个锁太大了，锁的颗粒度太粗了，我们在使用锁的过程中，要控制**锁的颗粒度** ，锁的颗粒度太大就会造成每个线程进来都会被锁住，我们需要控制一下颗粒度，将其修改为
@@ -355,7 +384,8 @@ Result seckillVoucher(Long voucherId) {
 intern()方法是从常量池中拿到数据，如果我们之间使用userId.toString() 他拿到的实际上是不同的对象，就算他们字符全都一样，但是jvm中，他们有不同的编号，new出来的对象，我们使用锁必须要保证锁必须是同一把锁，所以我们用intern()方法
 
 ```java
-@Transactionalpublic
+@Transactional
+public
 Result createVoucherOrder(Long voucherId) {
     Long userId = UserHolder.getUser().getId();
     synchronized(userId.toString().intern()){
@@ -367,13 +397,17 @@ Result createVoucherOrder(Long voucherId) {
             return Result.fail("用户已经购买过一次！");
         }
         // 6.扣减库存
-        boolean success = seckillVoucherService.update()                .setSql("stock = stock - 1")
-        // set stock = stock - 1                .eq("voucher_id", voucherId).gt("stock", 0) // where id = ? and stock > 0                .update();
+        boolean success = seckillVoucherService.update()
+                .setSql("stock = stock - 1")
+        // set stock = stock - 1
+                .eq("voucher_id", voucherId).gt("stock", 0) // where id = ? and stock > 0
+                .update();
         if (!success) {
             // 扣减失败
             return Result.fail("库存不足！");
         }
-        // 7.创建订单        VoucherOrder voucherOrder =
+        // 7.创建订单
+        VoucherOrder voucherOrder =
         new VoucherOrder();
         // 7.1.订单id
         long orderId = redisIdWorker.nextId("order");
@@ -485,8 +519,10 @@ public class SimpleRedisLock implements ILock {
     public boolean tryLock(long timeoutSec) {
         // 获取线程标示
         String threadId = ID_PREFIX + Thread.currentThread().getId();
-        // 获取锁        Boolean success =
-        stringRedisTemplate.opsForValue()                .setIfAbsent(KEY_PREFIX + name, threadId, timeoutSec, TimeUnit.SECONDS);
+        // 获取锁
+        Boolean success =
+        stringRedisTemplate.opsForValue()
+                .setIfAbsent(KEY_PREFIX + name, threadId, timeoutSec, TimeUnit.SECONDS);
         return Boolean.TRUE.equals(success);
     }
 }

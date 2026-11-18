@@ -38,7 +38,10 @@ SqlMapConfig.xml中配置的内容和顺序如下
 将数据库连接参数只配置在db.properties中。原因：方便对参数进行统一管理，**其它xml可以引用该db.properties** 。
 
 ```properties
-jdbc.driver=com.mysql.jdbc.Driverjdbc.url=jdbc:mysql://120.25.162.238:3306/mybatis001?characterEncoding=utf-8jdbc.username=rootjdbc.password=123
+jdbc.driver=com.mysql.jdbc.Driver
+jdbc.url=jdbc:mysql://120.25.162.238:3306/mybatis001?characterEncoding=utf-8
+jdbc.username=root
+jdbc.password=123
 ```
 
 在sqlMapConfig.xml加载属性文件：
@@ -47,7 +50,9 @@ jdbc.driver=com.mysql.jdbc.Driverjdbc.url=jdbc:mysql://120.25.162.238:3306/mybat
 
 ```xml
 <?xml version="1.0" encoding="UTF-8" ?>
-    <!DOCTYPE configuration        PUBLIC "-//mybatis.org//DTD Config 3.0//EN"        "http://mybatis.org/dtd/mybatis-3-config.dtd">
+    <!DOCTYPE configuration
+        PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-config.dtd">
     <configuration>
         <!-- 和spring整合后 environments配置将废除-->
         <environments default="development">
@@ -136,9 +141,14 @@ mybatis框架在运行时可以调整一些运行参数,比如：开启二级缓
 ```xml
 <!-- 别名定义 -->
 <typeAliases>
-    <!-- 针对单个别名定义    type：类型的路径    alias：别名     -->
+    <!-- 针对单个别名定义
+    type：类型的路径
+    alias：别名
+     -->
     <!-- <typeAlias type="cn.itcast.mybatis.po.User" alias="user"/> -->
-    <!-- 批量别名定义    指定包名，mybatis自动扫描包中的po类，自动定义别名，别名就是类名（首字母大写或小写都可以）    -->
+    <!-- 批量别名定义
+    指定包名，mybatis自动扫描包中的po类，自动定义别名，别名就是类名（首字母大写或小写都可以）
+    -->
     <package name="com.iot.mybatis.po"/>
 </typeAliases>
 ```
@@ -172,20 +182,29 @@ mybatis自带的类型处理器基本上满足日常需求，不需要单独定�
 
 
 ```xml
-<!-- 通过mapper接口加载单个 映射文件        遵循一些规范：需要将mapper接口类名和mapper.xml映射文件名称保持一致，且在一个目录中        上边规范的前提是：使用的是mapper代理方法         -->
+<!-- 通过mapper接口加载单个 映射文件
+        遵循一些规范：需要将mapper接口类名和mapper.xml映射文件名称保持一致，且在一个目录中
+        上边规范的前提是：使用的是mapper代理方法
+         -->
 <mapper class="com.iot.mybatis.mapper.UserMapper"/>
 ```
 
 目录示例
 
 ```
-com.iot.mybatis.mapper------------------package包           |----UserMapper.java           |----UserMapper.xml
+com.iot.mybatis.mapper------------------package包
+           |----UserMapper.java
+           |----UserMapper.xml
 ```
 
   * 批量加载mapper(推荐使用)
 
 
 ```xml
-<!-- 批量加载mapper		指定mapper接口的包名，mybatis自动扫描包下边所有mapper接口进行加载		遵循一些规范：需要将mapper接口类名和mapper.xml映射文件名称保持一致，且在一个目录 中		上边规范的前提是：使用的是mapper代理方法		 -->
+<!-- 批量加载mapper
+        指定mapper接口的包名，mybatis自动扫描包下边所有mapper接口进行加载
+        遵循一些规范：需要将mapper接口类名和mapper.xml映射文件名称保持一致，且在一个目录 中
+        上边规范的前提是：使用的是mapper代理方法
+         -->
 <package name="com.iot.mybatis.mapper"/>
 ```

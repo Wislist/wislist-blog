@@ -6,6 +6,7 @@
 
 import { v4 as uuidv4 } from 'uuid' // 用户 id 生成
 import xss from 'xss'
+import { visitorRequest } from './visitor.js'
 
 // Cloudflare request.cf 地理信息 (每次请求更新，用于新评论提交)
 let currentRequestGeo = { ip: null, region: '' }
@@ -349,6 +350,8 @@ export default {
    * @returns {Response}
    */
   async fetch (request, env) {
+    const visitorResponse = await visitorRequest(request, env)
+    if (visitorResponse) return visitorResponse
     setDb(env.DB)
     // 从 Cloudflare 获取 IP 地理信息 (替代 ip2region)
     // 格式: country|0|province|city|isp (与 ip2region 格式一致)

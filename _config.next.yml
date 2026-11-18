@@ -24,13 +24,14 @@ sidebar:
 # ---------------------------------------------------------------
 # 菜单
 # ---------------------------------------------------------------
+# NexT 默认 menu 为空；navigation 按 Object.entries 的插入顺序生成菜单。
 menu:
   home: / || fa fa-home
   categories: /categories/ || fa fa-layer-group
   tags: /tags/ || fa fa-tags
   资源收集: /resources/ || fa fa-bookmark
-  archives: /archives/ || fa fa-archive
   关于我: /about/ || fa fa-user
+  archives: /archives/ || fa fa-archive
 
 menu_settings:
   icons: true
@@ -92,9 +93,10 @@ codeblock:
     enable: false
     height: 500
 
-# 自定义样式（长代码自动换行）
+# 自定义扩展：保留代码原始行，侧边栏显示访问者天气与实时统计
 custom_file_path:
   style: source/_data/styles.styl
+  sidebar: source/_data/sidebar.njk
   bodyEnd: source/_data/body-end.njk
 
 # ---------------------------------------------------------------

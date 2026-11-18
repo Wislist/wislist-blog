@@ -28,7 +28,10 @@ ssh -T -p 443 git@ssh.github.com
 然后将下面的代码复制进去
 
 ```
-Host github.comHostname ssh.github.comPort 443User git
+Host github.com
+    Hostname ssh.github.com
+    Port 443
+    User git
 ```
 
 然后用vim命令，输入`：`进入编辑模式 输入`wq` 保存修改即可完成
