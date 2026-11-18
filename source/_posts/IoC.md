@@ -1,8 +1,13 @@
 ---
 title: "IoC思想"
 date: 2024-08-30 00:00:00
-tags: []
-categories: []
+
+categories:
+  - 框架
+tags:
+  - Spring
+  - IoC
+  - 设计思想
 ---
 
 ## IoC

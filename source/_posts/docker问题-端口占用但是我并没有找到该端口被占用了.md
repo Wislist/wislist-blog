@@ -1,8 +1,13 @@
 ---
 title: "docker问题"
 date: 2024-10-07 00:00:00
-tags: []
-categories: []
+
+categories:
+  - 运维工具
+tags:
+  - Docker
+  - 端口
+  - 排错
 ---
 
 docker问题

@@ -1,8 +1,12 @@
 ---
 title: "RabbitMQ（DAY1）"
 date: 2024-09-03 00:00:00
-tags: []
-categories: []
+
+categories:
+  - 中间件
+tags:
+  - RabbitMQ
+  - 消息队列
 ---
 
 ### RabbitMQ（DAY1）

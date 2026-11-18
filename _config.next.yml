@@ -1,0 +1,102 @@
+# ===============================================================
+# NexT 站点级配置覆盖
+# 此文件会 deep-merge 到 themes/next/_config.yml 之上，
+# 主题目录保持干净，升级主题不会丢配置。
+# 完整可选项见 themes/next/_config.yml
+# ===============================================================
+
+# ---------------------------------------------------------------
+# 布局与外观
+# ---------------------------------------------------------------
+# Muse（单栏）/ Mist（单栏紧凑）/ Pisces（双栏+侧边栏）/ Gemini（双栏）
+scheme: Pisces
+
+# 深色模式，右上角按钮可切换
+darkmode: true
+
+# 侧边栏
+sidebar:
+  position: left
+  display: post
+  width_expanded: 320
+  width_dual_column: 240
+
+# ---------------------------------------------------------------
+# 菜单
+# ---------------------------------------------------------------
+menu:
+  home: / || fa fa-home
+  archives: /archives/ || fa fa-archive
+  categories: /categories/ || fa fa-layer-group
+  tags: /tags/ || fa fa-tags
+
+menu_settings:
+  icons: true
+  badges: true
+
+# ---------------------------------------------------------------
+# 个人信息
+# ---------------------------------------------------------------
+# 头像已本地化到 source/images/avatar.png（原 OSS 图床已失效）
+avatar:
+  url: /images/avatar.png
+  rounded: true
+  rotated: false
+
+# favicon 也用本地切好的图，不再依赖第三方域名
+favicon:
+  small: /images/favicon-16x16.png
+  medium: /images/favicon-32x32.png
+  apple_touch_icon: /images/apple-touch-icon.png
+
+social:
+  GitHub: https://github.com/Wislist || fa-brands fa-github
+  Bilibili: https://space.bilibili.com/100396325 || fa-brands fa-bilibili
+  QQ: "tencent://AddContact/?fromId=50&fromSubId=1&subcmd=all&uin=2929250563 || fa-brands fa-qq"
+  E-Mail: mailto:wislist0721@gmail.com || fa fa-envelope
+
+social_icons:
+  enable: true
+  icons_only: false
+  transition: false
+
+# ---------------------------------------------------------------
+# 文章
+# ---------------------------------------------------------------
+toc:
+  enable: true
+  number: true
+  expand_all: false
+  max_depth: 4
+
+post_meta:
+  item_text: true
+  created_at: true
+  updated_at:
+    enable: true
+    another_day: true
+  categories: true
+
+read_more_btn: true
+
+# 代码块：这个博客代码量大，打开复制按钮
+# language 水印关掉：代码多为超长单行，右上角的大号语言名会压住正文
+codeblock:
+  copy_button:
+    enable: true
+    style: default
+  language: false
+  fold:
+    enable: false
+    height: 500
+
+# 自定义样式（长代码自动换行）
+custom_file_path:
+  style: source/_data/styles.styl
+  bodyEnd: source/_data/body-end.njk
+
+# ---------------------------------------------------------------
+# 页脚
+# ---------------------------------------------------------------
+footer:
+  since: 2023

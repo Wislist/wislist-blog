@@ -6,3 +6,8 @@ node_modules/
 public/
 .deploy*/
 _multiconfig.yml
+# 本地临时文件（截图、脚本、构建日志）
+.tmp/
+
+# pnpm 本地包存储
+.pnpm-store/

@@ -1,8 +1,13 @@
 ---
 title: "Dubbo(Day2)"
 date: 2024-09-09 00:00:00
-tags: []
-categories: []
+
+categories:
+  - 中间件
+tags:
+  - Dubbo
+  - RPC
+  - 通信协议
 ---
 
 ### Dubbo(Day2)
@@ -12,9 +17,16 @@ categories: []
 Dubbo 会在 Zookeeper 的 `/dubbo/interfaceName` 和 `/services/appName` 下写入服务提供者的连接信息。
 
 zookeeper显示的数据：
-[code] 
-    [zk: localhost:2181(CONNECTED) 2] ls /services/first-dubbo-provider[30.221.146.35:20880][zk: localhost:2181(CONNECTED) 3] get /services/first-dubbo-provider/30.221.146.35:20880{"name":"first-dubbo-provider","id":"30.221.146.35:20880","address":"30.221.146.35","port":20880,"sslPort":null,"payload":{"@class":"org.apache.dubbo.registry.zookeeper.ZookeeperInstance","id":"30.221.146.35:20880","name":"first-dubbo-provider","metadata":{"dubbo.endpoints":"[{\"port\":20880,\"protocol\":\"dubbo\"}]","dubbo.metadata-service.url-params":"{\"connections\":\"1\",\"version\":\"1.0.0\",\"dubbo\":\"2.0.2\",\"release\":\"3.1.4\",\"side\":\"provider\",\"ipv6\":\"fd00:1:5:5200:3218:774a:4f67:2341\",\"port\":\"20880\",\"protocol\":\"dubbo\"}","dubbo.metadata.revision":"871fbc9cb2730caea9b0d858852d5ede","dubbo.metadata.storage-type":"local","ipv6":"fd00:1:5:5200:3218:774a:4f67:2341","timestamp":"1674960780647"}},"registrationTimeUTC":1674960781893,"serviceType":"DYNAMIC","uriSpec":null}
-[/code]
+
+```xml
+[zk: localhost:2181(CONNECTED) 2] ls /services/first-dubbo-provider[30.221.146.35:20880][zk: localhost:2181(CONNECTED) 3] get /services/first-dubbo-provider/30.221.146.35:20880{
+    "name":"first-dubbo-provider","id":"30.221.146.35:20880","address":"30.221.146.35","port":20880,"sslPort":null,"payload":{
+        "@class":"org.apache.dubbo.registry.zookeeper.ZookeeperInstance","id":"30.221.146.35:20880","name":"first-dubbo-provider","metadata":{
+        "dubbo.endpoints":"[{\"port\":20880,\"protocol\":\"dubbo\"}]","dubbo.metadata-service.url-params":"{\"connections\":\"1\",\"version\":\"1.0.0\",\"dubbo\":\"2.0.2\",\"release\":\"3.1.4\",\"side\":\"provider\",\"ipv6\":\"fd00:1:5:5200:3218:774a:4f67:2341\",\"port\":\"20880\",\"protocol\":\"dubbo\"}","dubbo.metadata.revision":"871fbc9cb2730caea9b0d858852d5ede","dubbo.metadata.storage-type":"local","ipv6":"fd00:1:5:5200:3218:774a:4f67:2341","timestamp":"1674960780647"
+        }}
+,"registrationTimeUTC":1674960781893,"serviceType":"DYNAMIC","uriSpec":null
+}
+```
 
 #### 消费端是如何发起请求的？
 
@@ -23,14 +35,22 @@ zookeeper显示的数据：
 服务提供者对指定接口进行实现，消费者通过Dubbo去订阅这个接口。消费者调用接口的过程中Dubbo会将请求封装成网络请求，然后发送给提供者进行实际调用。
 
 例如，我们定义一个`GreetingsService`的 接口，这个接口有一个名为sayHi的方法
-[code] 
-    package org.apache.dubbo.samples.api;public interface GreetingsService {    String sayHi(String name);}
-[/code]
+
+```xml
+package org.apache.dubbo.samples.api;
+public interface GreetingsService {
+    String sayHi(String name);
+}
+```
 
 消费者通过Dubbo的API可以获取`GreetingsService`接口的代理，然后就可以按照普通的接口调用方式进行调用。**得益于Dubbo的动态代理机制，这就像本地代理一样**
-[code] 
-    // 获取订阅到的 StubGreetingsService service = reference.get();// 像普通的 java 接口一样调用String message = service.sayHi("dubbo");
-[/code]
+
+```java
+// 获取订阅到的 StubGreetingsService service =
+reference.get();
+// 像普通的 java 接口一样调用String message =
+service.sayHi("dubbo");
+```
 
 #### Dubbo Spring Boot Starter开发微服务
 
@@ -39,14 +59,177 @@ zookeeper显示的数据：
 ![image-20240909234102999](https://wilsit-img.oss-cn-guangzhou.aliyuncs.com/img/image-20240909234102999.png)
 
 父工程的pom
-[code] 
-    <?xml version="1.0" encoding="UTF-8"?><project xmlns="http://maven.apache.org/POM/4.0.0"         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">    <modelVersion>4.0.0</modelVersion>    <groupId>com.wislsit</groupId>    <artifactId>dubbo-spring-boot-demo</artifactId>    <version>1.0-SNAPSHOT</version>    <packaging>pom</packaging>    <modules>        <module>dubbo-spring-boot-demo-interface</module>        <module>dubbo-spring-boot-demo-provider</module>        <module>dubbo-spring-boot-demo-consumer</module>    </modules>    <properties>        <spring-boot.version>2.7.8</spring-boot.version>        <dubbo.version>3.2.0-beta.4</dubbo.version>        <maven.compiler.source>17</maven.compiler.source>        <maven.compiler.target>17</maven.compiler.target>        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>    </properties>    <dependencies><!--        springboot-->        <dependency>            <groupId>org.springframework.boot</groupId>            <artifactId>spring-boot-dependencies</artifactId>            <version>${spring-boot.version}</version>            <type>pom</type>            <scope>import</scope>        </dependency><!--        Dubbo-->        <dependency>            <groupId>org.apache.dubbo</groupId>            <artifactId>dubbo-spring-boot-starter</artifactId>            <version>${dubbo.version}</version>            <type>pom</type>            <scope>import</scope>        </dependency><!--        -->        <dependency>            <groupId>org.apache.dubbo</groupId>            <artifactId>dubbo-dependencies-zookeeper-curator5</artifactId>            <version>${dubbo.version}</version>        </dependency>    </dependencies>    <build>        <pluginManagement>            <plugins>                <plugin>                    <groupId>org.springframework.boot</groupId>                    <artifactId>spring-boot-maven-plugin</artifactId>                    <version>${spring-boot.version}</version>                </plugin>            </plugins>        </pluginManagement>    </build></project>
-[/code]
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+    <project xmlns="http://maven.apache.org/POM/4.0.0"         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+        <modelVersion>
+            4.0.0
+        </modelVersion>
+        <groupId>
+            com.wislsit
+        </groupId>
+        <artifactId>
+            dubbo-spring-boot-demo
+        </artifactId>
+        <version>
+            1.0-SNAPSHOT
+        </version>
+        <packaging>
+            pom
+        </packaging>
+        <modules>
+            <module>
+                dubbo-spring-boot-demo-interface
+            </module>
+            <module>
+                dubbo-spring-boot-demo-provider
+            </module>
+            <module>
+                dubbo-spring-boot-demo-consumer
+            </module>
+        </modules>
+        <properties>
+            <spring-boot.version>
+                2.7.8
+            </spring-boot.version>
+            <dubbo.version>
+                3.2.0-beta.4
+            </dubbo.version>
+            <maven.compiler.source>
+                17
+            </maven.compiler.source>
+            <maven.compiler.target>
+                17
+            </maven.compiler.target>
+            <project.build.sourceEncoding>
+                UTF-8
+            </project.build.sourceEncoding>
+        </properties>
+        <dependencies>
+            <!--        springboot-->
+            <dependency>
+                <groupId>
+                    org.springframework.boot
+                </groupId>
+                <artifactId>
+                    spring-boot-dependencies
+                </artifactId>
+                <version>
+                    ${spring-boot.version}
+                </version>
+                <type>
+                    pom
+                </type>
+                <scope>
+                    import
+                </scope>
+            </dependency>
+            <!--        Dubbo-->
+            <dependency>
+                <groupId>
+                    org.apache.dubbo
+                </groupId>
+                <artifactId>
+                    dubbo-spring-boot-starter
+                </artifactId>
+                <version>
+                    ${dubbo.version}
+                </version>
+                <type>
+                    pom
+                </type>
+                <scope>
+                    import
+                </scope>
+            </dependency>
+            <!--        -->
+            <dependency>
+                <groupId>
+                    org.apache.dubbo
+                </groupId>
+                <artifactId>
+                    dubbo-dependencies-zookeeper-curator5
+                </artifactId>
+                <version>
+                    ${dubbo.version}
+                </version>
+            </dependency>
+        </dependencies>
+        <build>
+            <pluginManagement>
+                <plugins>
+                    <plugin>
+                        <groupId>
+                            org.springframework.boot
+                        </groupId>
+                        <artifactId>
+                            spring-boot-maven-plugin
+                        </artifactId>
+                        <version>
+                            ${spring-boot.version}
+                        </version>
+                    </plugin>
+                </plugins>
+            </pluginManagement>
+        </build>
+    </project>
+```
 
 子工程consumer和provider的pom
-[code] 
-    <dependencies>        <dependency>            <groupId>com.wislsit</groupId>            <artifactId>dubbo-spring-boot-demo-interface</artifactId>            <version>1.0-SNAPSHOT</version>        </dependency>        <dependency>            <groupId>org.apache.dubbo</groupId>            <artifactId>dubbo-spring-boot-starter</artifactId>        </dependency>        <dependency>            <groupId>org.apache.dubbo</groupId>            <artifactId>dubbo-dependencies-zookeeper-curator5</artifactId>            <type>pom</type>            <exclusions>                <exclusion>                    <artifactId>slf4j-reload4j</artifactId>                    <groupId>org.slf4j</groupId>                </exclusion>            </exclusions>        </dependency><!--        springboot starter-->        <dependency>            <groupId>org.springframework.boot</groupId>            <artifactId>spring-boot-starter</artifactId>        </dependency>
-[/code]
+
+```xml
+<dependencies>
+    <dependency>
+        <groupId>
+            com.wislsit
+        </groupId>
+        <artifactId>
+            dubbo-spring-boot-demo-interface
+        </artifactId>
+        <version>
+            1.0-SNAPSHOT
+        </version>
+    </dependency>
+    <dependency>
+        <groupId>
+            org.apache.dubbo
+        </groupId>
+        <artifactId>
+            dubbo-spring-boot-starter
+        </artifactId>
+    </dependency>
+    <dependency>
+        <groupId>
+            org.apache.dubbo
+        </groupId>
+        <artifactId>
+            dubbo-dependencies-zookeeper-curator5
+        </artifactId>
+        <type>
+            pom
+        </type>
+        <exclusions>
+            <exclusion>
+                <artifactId>
+                    slf4j-reload4j
+                </artifactId>
+                <groupId>
+                    org.slf4j
+                </groupId>
+            </exclusion>
+        </exclusions>
+    </dependency>
+    <!--        springboot starter-->
+    <dependency>
+        <groupId>
+            org.springframework.boot
+        </groupId>
+        <artifactId>
+            spring-boot-starter
+        </artifactId>
+    </dependency>
+```
 
 #### 为啥我们需要Dubbo，它能带来啥？
 

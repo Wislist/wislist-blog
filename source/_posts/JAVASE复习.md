@@ -1,8 +1,13 @@
 ---
 title: "JAVASE复习"
 date: 2023-12-02 00:00:00
-tags: []
-categories: []
+
+categories:
+  - Java基础
+tags:
+  - Java
+  - 语法
+  - 面向对象
 ---
 
 # JAVASE复习

@@ -1,8 +1,14 @@
 ---
 title: "HTTP&Tomcat&Servlet"
 date: 2023-12-02 00:00:00
-tags: []
-categories: []
+
+categories:
+  - JavaWeb
+tags:
+  - HTTP
+  - Tomcat
+  - Servlet
+  - JavaWeb
 ---
 
 * * *
@@ -187,8 +193,10 @@ TCP是一种面向连接的(建立连接之前是需要经过三次握手)、可
   * 请求头: 第二行开始，格式为key: value形式
 
 请求头中会包含若干个属性，常见的HTTP请求头有:
-[code] Host: 表示请求的主机名User-Agent: 浏览器版本,例如Chrome浏览器的标识类似Mozilla/5.0 ...Chrome/79，IE浏览器的标识类似Mozilla/5.0 (Windows NT ...)like Gecko；Accept：表示浏览器能接收的资源类型，如text/*，image/*或者*/*表示所有；Accept-Language：表示浏览器偏好的语言，服务器可以据此返回不同语言的网页；Accept-Encoding：表示浏览器可以支持的压缩类型，例如gzip, deflate等。
-[/code]
+
+```yml
+Host: 表示请求的主机名User-Agent: 浏览器版本,例如Chrome浏览器的标识类似Mozilla/5.0 ...Chrome/79，IE浏览器的标识类似Mozilla/5.0 (Windows NT ...)like Gecko；Accept：表示浏览器能接收的资源类型，如text/*，image/*或者*/*表示所有；Accept-Language：表示浏览器偏好的语言，服务器可以据此返回不同语言的网页；Accept-Encoding：表示浏览器可以支持的压缩类型，例如gzip, deflate等。
+```
 
 ==这些数据有什么用处?==
 
@@ -241,8 +249,10 @@ TCP是一种面向连接的(建立连接之前是需要经过三次握手)、可
   * 响应头：第二行开始，格式为key：value形式
 
 响应头中会包含若干个属性，常见的HTTP响应头有:
-[code] Content-Type：表示该响应内容的类型，例如text/html，image/jpeg；Content-Length：表示该响应内容的长度（字节数）；Content-Encoding：表示该响应压缩算法，例如gzip；Cache-Control：指示客户端应如何缓存，例如max-age=300表示可以最多缓存300秒
-[/code]
+
+```java
+Content-Type：表示该响应内容的类型，例如text/html，image/jpeg；Content-Length：表示该响应内容的长度（字节数）；Content-Encoding：表示该响应压缩算法，例如gzip；Cache-Control：指示客户端应如何缓存，例如max-age=300表示可以最多缓存300秒
+```
 
   * 响应体： 最后一部分。存放响应数据
 
@@ -263,9 +273,95 @@ TCP是一种面向连接的(建立连接之前是需要经过三次握手)、可
 #### 2.3.3 自定义服务器
 
 在前面我们导入到IDEA中的http项目中，有一个Server.java类，这里面就是自定义的一个服务器代码，主要使用到的是`ServerSocket`和`Socket`
-[code] 
-    package com.itheima;import sun.misc.IOUtils;import java.io.*;import java.net.ServerSocket;import java.net.Socket;import java.nio.charset.StandardCharsets;import java.nio.file.Files;/*    自定义服务器 */public class Server {    public static void main(String[] args) throws IOException {        ServerSocket ss = new ServerSocket(8080); // 监听指定端口        System.out.println("server is running...");        while (true){            Socket sock = ss.accept();            System.out.println("connected from " + sock.getRemoteSocketAddress());            Thread t = new Handler(sock);            t.start();        }    }}class Handler extends Thread {    Socket sock;    public Handler(Socket sock) {        this.sock = sock;    }    public void run() {        try (InputStream input = this.sock.getInputStream()) {            try (OutputStream output = this.sock.getOutputStream()) {                handle(input, output);            }        } catch (Exception e) {            try {                this.sock.close();            } catch (IOException ioe) {            }            System.out.println("client disconnected.");        }    }    private void handle(InputStream input, OutputStream output) throws IOException {        BufferedReader reader = new BufferedReader(new InputStreamReader(input, StandardCharsets.UTF_8));        BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(output, StandardCharsets.UTF_8));        // 读取HTTP请求:        boolean requestOk = false;        String first = reader.readLine();        if (first.startsWith("GET / HTTP/1.")) {            requestOk = true;        }        for (;;) {            String header = reader.readLine();            if (header.isEmpty()) { // 读取到空行时, HTTP Header读取完毕                break;            }            System.out.println(header);        }        System.out.println(requestOk ? "Response OK" : "Response Error");        if (!requestOk) {            // 发送错误响应:            writer.write("HTTP/1.0 404 Not Found\r\n");            writer.write("Content-Length: 0\r\n");            writer.write("\r\n");            writer.flush();        } else {            // 发送成功响应:            //读取html文件，转换为字符串            BufferedReader br = new BufferedReader(new FileReader("http/html/a.html"));            StringBuilder data = new StringBuilder();            String line = null;            while ((line = br.readLine()) != null){                data.append(line);            }            br.close();            int length = data.toString().getBytes(StandardCharsets.UTF_8).length;            writer.write("HTTP/1.1 200 OK\r\n");            writer.write("Connection: keep-alive\r\n");            writer.write("Content-Type: text/html\r\n");            writer.write("Content-Length: " + length + "\r\n");            writer.write("\r\n"); // 空行标识Header和Body的分隔            writer.write(data.toString());            writer.flush();        }    }}
-[/code]
+
+```java
+package com.itheima;
+import sun.misc.IOUtils;
+import java.io.*;
+import java.net.ServerSocket;
+import java.net.Socket;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+/*    自定义服务器 */
+public class Server {
+    public static void main(String[] args) throws IOException {
+        ServerSocket ss = new ServerSocket(8080);
+        // 监听指定端口
+        System.out.println("server is running...");
+        while (true){
+            Socket sock = ss.accept();
+            System.out.println("connected from " + sock.getRemoteSocketAddress());
+            Thread t = new Handler(sock);
+            t.start();
+        }
+    }
+}
+class Handler extends Thread {
+    Socket sock;
+    public Handler(Socket sock) {
+        this.sock = sock;
+    }
+    public void run() {
+        try (InputStream input = this.sock.getInputStream()) {
+            try (OutputStream output = this.sock.getOutputStream()) {
+                handle(input, output);
+            }
+        }
+        catch (Exception e) {
+            try {
+                this.sock.close();
+            }
+            catch (IOException ioe) {
+            }
+            System.out.println("client disconnected.");
+        }
+    }
+    private void handle(InputStream input, OutputStream output) throws IOException {
+        BufferedReader reader = new BufferedReader(new InputStreamReader(input, StandardCharsets.UTF_8));
+        BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(output, StandardCharsets.UTF_8));
+        // 读取HTTP请求:
+        boolean requestOk = false;
+        String first = reader.readLine();
+        if (first.startsWith("GET / HTTP/1.")) {
+            requestOk = true;
+        }
+        for (;;) {
+            String header = reader.readLine();
+            if (header.isEmpty()) {
+                // 读取到空行时, HTTP Header读取完毕                break;
+            }
+            System.out.println(header);
+        }
+        System.out.println(requestOk ? "Response OK" : "Response Error");
+        if (!requestOk) {
+            // 发送错误响应:
+            writer.write("HTTP/1.0 404 Not Found\r\n");
+            writer.write("Content-Length: 0\r\n");
+            writer.write("\r\n");
+            writer.flush();
+        }
+        else {
+            // 发送成功响应:            //读取html文件，转换为字符串            BufferedReader br =
+            new BufferedReader(new FileReader("http/html/a.html"));
+            StringBuilder data = new StringBuilder();
+            String line = null;
+            while ((line = br.readLine()) != null){
+                data.append(line);
+            }
+            br.close();
+            int length = data.toString().getBytes(StandardCharsets.UTF_8).length;
+            writer.write("HTTP/1.1 200 OK\r\n");
+            writer.write("Connection: keep-alive\r\n");
+            writer.write("Content-Type: text/html\r\n");
+            writer.write("Content-Length: " + length + "\r\n");
+            writer.write("\r\n");
+            // 空行标识Header和Body的分隔
+            writer.write(data.toString());
+            writer.flush();
+        }
+    }
+}
+```
 
 上面代码，大家不需要自己写，主要通过上述代码，只需要大家了解到服务器可以使用java完成编写，是可以接受页面发送的请求和响应数据给前端浏览器的，真正用到的Web服务器，我们不会自己写，都是使用目前比较流行的web服务器，比如==Tomcat==
 
@@ -646,8 +742,25 @@ Web项目的结构分为:开发中的项目和开发完可以部署的Web项目,
 在IDEA中使用本地Tomcat进行项目部署，相对来说步骤比较繁琐，所以我们需要一种更简便的方式来替换它，那就是直接使用Maven中的Tomcat插件来部署项目，具体的实现步骤，只需要两步，分别是:
 
   1. 在pom.xml中添加Tomcat插件
-[code] <build>    <plugins>    	<!--Tomcat插件 -->        <plugin>            <groupId>org.apache.tomcat.maven</groupId>            <artifactId>tomcat7-maven-plugin</artifactId>            <version>2.2</version>        </plugin>    </plugins></build>
-[/code]
+
+```xml
+<build>
+    <plugins>
+        <!--Tomcat插件 -->
+        <plugin>
+            <groupId>
+                org.apache.tomcat.maven
+            </groupId>
+            <artifactId>
+                tomcat7-maven-plugin
+            </artifactId>
+            <version>
+                2.2
+            </version>
+        </plugin>
+    </plugins>
+</build>
+```
 
   2. 使用Maven Helper插件快速启动项目，选中项目，右键–>Run Maven –> tomcat7:run
 
@@ -665,9 +778,34 @@ Web项目的结构分为:开发中的项目和开发完可以部署的Web项目,
   * 使用Maven Tomcat插件，要想修改Tomcat的端口和访问路径，可以直接修改pom.xml
 
 
-[code] 
-    <build>    <plugins>    	<!--Tomcat插件 -->        <plugin>            <groupId>org.apache.tomcat.maven</groupId>            <artifactId>tomcat7-maven-plugin</artifactId>            <version>2.2</version>            <configuration>            	<port>80</port><!--访问端口号 -->                <!--项目访问路径					未配置访问路径: http://localhost:80/tomcat-demo2/a.html					配置/后访问路径: http://localhost:80/a.html					如果配置成 /hello,访问路径会变成什么?						答案: http://localhost:80/hello/a.html				-->                <path>/</path>            </configuration>        </plugin>    </plugins></build>
-[/code]
+```xml
+<build>
+    <plugins>
+        <!--Tomcat插件 -->
+        <plugin>
+            <groupId>
+                org.apache.tomcat.maven
+            </groupId>
+            <artifactId>
+                tomcat7-maven-plugin
+            </artifactId>
+            <version>
+                2.2
+            </version>
+            <configuration>
+                <port>
+                    80
+                </port>
+                <!--访问端口号 -->
+                <!--项目访问路径					未配置访问路径: http://localhost:80/tomcat-demo2/a.html					配置/后访问路径: http://localhost:80/a.html					如果配置成 /hello,访问路径会变成什么?						答案: http://localhost:80/hello/a.html				-->
+                <path>
+                    /
+                </path>
+            </configuration>
+        </plugin>
+    </plugins>
+</build>
+```
 
 **小结**
 
@@ -699,30 +837,61 @@ Web项目的结构分为:开发中的项目和开发完可以部署的Web项目,
   1. 创建Web项目`web-demo`，导入Servlet依赖坐标
 
 
-[code] 
-    <dependency>    <groupId>javax.servlet</groupId>    <artifactId>javax.servlet-api</artifactId>    <version>3.1.0</version>    <!--      此处为什么需要添加该标签?      provided指的是在编译和测试过程中有效,最后生成的war包时不会加入       因为Tomcat的lib目录中已经有servlet-api这个jar包，如果在生成war包的时候生效就会和Tomcat中的jar包冲突，导致报错    -->    <scope>provided</scope></dependency>
-[/code]
+```xml
+<dependency>
+    <groupId>
+        javax.servlet
+    </groupId>
+    <artifactId>
+        javax.servlet-api
+    </artifactId>
+    <version>
+        3.1.0
+    </version>
+    <!--      此处为什么需要添加该标签?      provided指的是在编译和测试过程中有效,最后生成的war包时不会加入       因为Tomcat的lib目录中已经有servlet-api这个jar包，如果在生成war包的时候生效就会和Tomcat中的jar包冲突，导致报错    -->
+    <scope>
+        provided
+    </scope>
+</dependency>
+```
 
   2. 创建:定义一个类，实现Servlet接口，并重写接口中所有方法，并在service方法中输入一句话
 
 
-[code] 
-    package com.itheima.web;import javax.servlet.*;import java.io.IOException;public class ServletDemo1 implements Servlet {    public void service(ServletRequest servletRequest, ServletResponse servletResponse) throws ServletException, IOException {        System.out.println("servlet hello world~");    }    public void init(ServletConfig servletConfig) throws ServletException {    }    public ServletConfig getServletConfig() {        return null;    }    public String getServletInfo() {        return null;    }    public void destroy() {    }}
-[/code]
+```java
+package com.itheima.web;
+import javax.servlet.*;
+import java.io.IOException;
+public class ServletDemo1 implements Servlet {
+    public void service(ServletRequest servletRequest, ServletResponse servletResponse) throws ServletException, IOException {
+        System.out.println("servlet hello world~");
+    }
+    public void init(ServletConfig servletConfig) throws ServletException {
+    }
+    public ServletConfig getServletConfig() {
+        return null;
+    }
+    public String getServletInfo() {
+        return null;
+    }
+    public void destroy() {
+    }
+}
+```
 
   3. 配置:在类上使用@WebServlet注解，配置该Servlet的访问路径
 
 
-[code] 
-    @WebServlet("/demo1")
-[/code]
+```java
+@WebServlet("/demo1")
+```
 
   4. 访问:启动Tomcat,浏览器中输入URL地址访问该Servlet
 
 
-[code] 
-    http://localhost:8080/web-demo/demo1
-[/code]
+```yml
+http://localhost:8080/web-demo/demo1
+```
 
   5. 器访问后，在控制台会打印`servlet hello world~` 说明servlet程序已经成功运行。
 
@@ -773,15 +942,46 @@ Servlet程序已经能正常运行，但是我们需要思考个问题: 我们�
   * Servlet运行在Servlet容器(web服务器)中，其生命周期由容器来管理，分为4个阶段：
 
     1. ==加载和实例化==：默认情况下，当Servlet第一次被访问时，由容器创建Servlet对象
-[code] 默认情况，Servlet会在第一次访问被容器创建，但是如果创建Servlet比较耗时的话，那么第一个访问的人等待的时间就比较长，用户的体验就比较差，那么我们能不能把Servlet的创建放到服务器启动的时候来创建，具体如何来配置?@WebServlet(urlPatterns = "/demo1",loadOnStartup = 1)loadOnstartup的取值有两类情况	（1）负整数:第一次访问时创建Servlet对象	（2）0或正整数:服务器启动时创建Servlet对象，数字越小优先级越高
-[/code]
+
+```java
+默认情况，Servlet会在第一次访问被容器创建，但是如果创建Servlet比较耗时的话，那么第一个访问的人等待的时间就比较长，用户的体验就比较差，那么我们能不能把Servlet的创建放到服务器启动的时候来创建，具体如何来配置?
+@WebServlet(urlPatterns
+= "/demo1",loadOnStartup = 1)loadOnstartup的取值有两类情况	（1）负整数:第一次访问时创建Servlet对象	（2）0或正整数:服务器启动时创建Servlet对象，数字越小优先级越高
+```
 
     2. ==初始化==：在Servlet实例化之后，容器将调用Servlet的==init()==方法初始化这个对象，完成一些如加载配置文件、创建连接等初始化的工作。该方法只==调用一次==
     3. ==请求处理==：==每次==请求Servlet时，Servlet容器都会调用Servlet的==service()==方法对请求进行处理
     4. ==服务终止==：当需要释放内存或者容器关闭时，容器就会调用Servlet实例的==destroy()==方法完成资源的释放。在destroy()方法调用之后，容器会释放这个Servlet实例，该实例随后会被Java的垃圾收集器所回收
   * 通过案例演示下上述的生命周期
-[code] package com.itheima.web;import javax.servlet.*;import javax.servlet.annotation.WebServlet;import java.io.IOException;/*** Servlet生命周期方法*/@WebServlet(urlPatterns = "/demo2",loadOnStartup = 1)public class ServletDemo2 implements Servlet {    /**     *  初始化方法     *  1.调用时机：默认情况下，Servlet被第一次访问时，调用     *      * loadOnStartup: 默认为-1，修改为0或者正整数，则会在服务器启动的时候，调用     *  2.调用次数: 1次     * @param config     * @throws ServletException     */    public void init(ServletConfig config) throws ServletException {        System.out.println("init...");    }    /**     * 提供服务     * 1.调用时机:每一次Servlet被访问时，调用     * 2.调用次数: 多次     * @param req     * @param res     * @throws ServletException     * @throws IOException     */    public void service(ServletRequest req, ServletResponse res) throws ServletException, IOException {        System.out.println("servlet hello world~");    }    /**     * 销毁方法     * 1.调用时机：内存释放或者服务器关闭的时候，Servlet对象会被销毁，调用     * 2.调用次数: 1次     */    public void destroy() {        System.out.println("destroy...");    }    public ServletConfig getServletConfig() {        return null;    }    public String getServletInfo() {        return null;    }}
-[/code]
+
+```java
+package com.itheima.web;
+import javax.servlet.*;
+import javax.servlet.annotation.WebServlet;
+import java.io.IOException;
+/*** Servlet生命周期方法*/
+@WebServlet(urlPatterns
+= "/demo2",loadOnStartup = 1)public class ServletDemo2 implements Servlet {
+    /**     *  初始化方法     *  1.调用时机：默认情况下，Servlet被第一次访问时，调用     *      * loadOnStartup: 默认为-1，修改为0或者正整数，则会在服务器启动的时候，调用     *  2.调用次数: 1次     * @param config     * @throws ServletException     */
+    public void init(ServletConfig config) throws ServletException {
+        System.out.println("init...");
+    }
+    /**     * 提供服务     * 1.调用时机:每一次Servlet被访问时，调用     * 2.调用次数: 多次     * @param req     * @param res     * @throws ServletException     * @throws IOException     */
+    public void service(ServletRequest req, ServletResponse res) throws ServletException, IOException {
+        System.out.println("servlet hello world~");
+    }
+    /**     * 销毁方法     * 1.调用时机：内存释放或者服务器关闭的时候，Servlet对象会被销毁，调用     * 2.调用次数: 1次     */
+    public void destroy() {
+        System.out.println("destroy...");
+    }
+    public ServletConfig getServletConfig() {
+        return null;
+    }
+    public String getServletInfo() {
+        return null;
+    }
+}
+```
 
 ==注意:如何才能让Servlet中的destroy方法被执行？==
 
@@ -819,44 +1019,76 @@ Servlet中总共有5个方法，我们已经介绍过其中的三个，剩下的
   * 初始化方法，在Servlet被创建时执行，只执行一次
 
 
-[code] 
-    void init(ServletConfig config) 
-[/code]
+```java
+void init(ServletConfig config)
+```
 
   * 提供服务方法， 每次Servlet被访问，都会调用该方法
 
 
-[code] 
-    void service(ServletRequest req, ServletResponse res)
-[/code]
+```java
+void service(ServletRequest req, ServletResponse res)
+```
 
   * 销毁方法，当Servlet被销毁时，调用该方法。在内存释放或服务器关闭时销毁Servlet
 
 
-[code] 
-    void destroy() 
-[/code]
+```java
+void destroy()
+```
 
 剩下的两个方法是:
 
   * 获取Servlet信息
 
 
-[code] 
-    String getServletInfo() //该方法用来返回Servlet的相关信息，没有什么太大的用处，一般我们返回一个空字符串即可public String getServletInfo() {    return "";}
-[/code]
+```java
+String getServletInfo()
+//该方法用来返回Servlet的相关信息，没有什么太大的用处，一般我们返回一个空字符串即可public
+String getServletInfo() {
+    return "";
+}
+```
 
   * 获取ServletConfig对象
 
 
-[code] 
-    ServletConfig getServletConfig()
-[/code]
+```java
+ServletConfig getServletConfig()
+```
 
 ServletConfig对象，在init方法的参数中有，而Tomcat Web服务器在创建Servlet对象的时候会调用init方法，必定会传入一个ServletConfig对象，我们只需要将服务器传过来的ServletConfig进行返回即可。具体如何操作?
-[code] 
-    package com.itheima.web;import javax.servlet.*;import javax.servlet.annotation.WebServlet;import java.io.IOException;/** * Servlet方法介绍 */@WebServlet(urlPatterns = "/demo3",loadOnStartup = 1)public class ServletDemo3 implements Servlet {    private ServletConfig servletConfig;    /**     *  初始化方法     *  1.调用时机：默认情况下，Servlet被第一次访问时，调用     *      * loadOnStartup: 默认为-1，修改为0或者正整数，则会在服务器启动的时候，调用     *  2.调用次数: 1次     * @param config     * @throws ServletException     */    public void init(ServletConfig config) throws ServletException {        this.servletConfig = config;        System.out.println("init...");    }    public ServletConfig getServletConfig() {        return servletConfig;    }        /**     * 提供服务     * 1.调用时机:每一次Servlet被访问时，调用     * 2.调用次数: 多次     * @param req     * @param res     * @throws ServletException     * @throws IOException     */    public void service(ServletRequest req, ServletResponse res) throws ServletException, IOException {        System.out.println("servlet hello world~");    }    /**     * 销毁方法     * 1.调用时机：内存释放或者服务器关闭的时候，Servlet对象会被销毁，调用     * 2.调用次数: 1次     */    public void destroy() {        System.out.println("destroy...");    }        public String getServletInfo() {        return "";    }}
-[/code]
+
+```java
+package com.itheima.web;
+import javax.servlet.*;
+import javax.servlet.annotation.WebServlet;
+import java.io.IOException;
+/** * Servlet方法介绍 */
+@WebServlet(urlPatterns
+= "/demo3",loadOnStartup = 1)public class ServletDemo3 implements Servlet {
+    private ServletConfig servletConfig;
+    /**     *  初始化方法     *  1.调用时机：默认情况下，Servlet被第一次访问时，调用     *      * loadOnStartup: 默认为-1，修改为0或者正整数，则会在服务器启动的时候，调用     *  2.调用次数: 1次     * @param config     * @throws ServletException     */
+    public void init(ServletConfig config) throws ServletException {
+        this.servletConfig = config;
+        System.out.println("init...");
+    }
+    public ServletConfig getServletConfig() {
+        return servletConfig;
+    }
+    /**     * 提供服务     * 1.调用时机:每一次Servlet被访问时，调用     * 2.调用次数: 多次     * @param req     * @param res     * @throws ServletException     * @throws IOException     */
+    public void service(ServletRequest req, ServletResponse res) throws ServletException, IOException {
+        System.out.println("servlet hello world~");
+    }
+    /**     * 销毁方法     * 1.调用时机：内存释放或者服务器关闭的时候，Servlet对象会被销毁，调用     * 2.调用次数: 1次     */
+    public void destroy() {
+        System.out.println("destroy...");
+    }
+    public String getServletInfo() {
+        return "";
+    }
+}
+```
 
 getServletInfo()和getServletConfig()这两个方法使用的不是很多，大家了解下。
 
@@ -871,17 +1103,44 @@ getServletInfo()和getServletConfig()这两个方法使用的不是很多，大�
 因为我们将来开发B/S架构的web项目，都是针对HTTP协议，所以我们自定义Servlet,会通过继承==HttpServlet==
 
 具体的编写格式如下:
-[code] 
-    @WebServlet("/demo4")public class ServletDemo4 extends HttpServlet {    @Override    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {        //TODO GET 请求方式处理逻辑        System.out.println("get...");    }    @Override    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {        //TODO Post 请求方式处理逻辑        System.out.println("post...");    }}
-[/code]
+
+```java
+@WebServlet("/demo4")
+public class ServletDemo4 extends HttpServlet {
+    @Override
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        //TODO GET 请求方式处理逻辑
+        System.out.println("get...");
+    }
+    @Override
+    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        //TODO Post 请求方式处理逻辑
+        System.out.println("post...");
+    }
+}
+```
 
   * 要想发送一个GET请求，请求该Servlet，只需要通过浏览器发送`http://localhost:8080/web-demo/demo4`,就能看到doGet方法被执行了
   * 要想发送一个POST请求，请求该Servlet，单单通过浏览器是无法实现的，这个时候就需要编写一个form表单来发送请求，在webapp下创建一个`a.html`页面，内容如下:
 
 
-[code] 
-    <!DOCTYPE html><html lang="en"><head>    <meta charset="UTF-8">    <title>Title</title></head><body>    <form action="/web-demo/demo4" method="post">        <input name="username"/><input type="submit"/>    </form></body></html>
-[/code]
+```xml
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+            <title>
+                Title
+            </title>
+        </head>
+        <body>
+            <form action="/web-demo/demo4" method="post">
+                <input name="username"/>
+                <input type="submit"/>
+            </form>
+        </body>
+    </html>
+```
 
 启动测试，即可看到doPost方法被执行了。
 
@@ -892,26 +1151,150 @@ Servlet的简化编写就介绍完了，接着需要思考两个问题:
 
 
 针对问题一，我们需要回顾之前的知识点==前端发送GET和POST请求的时候，参数的位置不一致，GET请求参数在请求行中，POST请求参数在请求体中==，为了能处理不同的请求方式，我们得在service方法中进行判断，然后写不同的业务处理，这样能实现，但是每个Servlet类中都将有相似的代码，针对这个问题，有什么可以优化的策略么?
-[code] 
-    package com.itheima.web;import javax.servlet.*;import javax.servlet.annotation.WebServlet;import javax.servlet.http.HttpServlet;import javax.servlet.http.HttpServletRequest;import javax.servlet.http.HttpServletResponse;import java.io.IOException;@WebServlet("/demo5")public class ServletDemo5 implements Servlet {    public void init(ServletConfig config) throws ServletException {    }    public ServletConfig getServletConfig() {        return null;    }    public void service(ServletRequest req, ServletResponse res) throws ServletException, IOException {        //如何调用?        //获取请求方式，根据不同的请求方式进行不同的业务处理        HttpServletRequest request = (HttpServletRequest)req;       //1. 获取请求方式        String method = request.getMethod();        //2. 判断        if("GET".equals(method)){            // get方式的处理逻辑        }else if("POST".equals(method)){            // post方式的处理逻辑        }    }    public String getServletInfo() {        return null;    }    public void destroy() {    }}
-[/code]
+
+```java
+package com.itheima.web;
+import javax.servlet.*;
+import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+@WebServlet("/demo5")
+public class ServletDemo5 implements Servlet {
+    public void init(ServletConfig config) throws ServletException {
+    }
+    public ServletConfig getServletConfig() {
+        return null;
+    }
+    public void service(ServletRequest req, ServletResponse res) throws ServletException, IOException {
+        //如何调用?        //获取请求方式，根据不同的请求方式进行不同的业务处理        HttpServletRequest request = (HttpServletRequest)req;       //1. 获取请求方式
+        String method = request.getMethod();
+        //2. 判断
+        if("GET".equals(method)){
+            // get方式的处理逻辑
+        }
+        else if("POST".equals(method)){
+            // post方式的处理逻辑
+        }
+    }
+    public String getServletInfo() {
+        return null;
+    }
+    public void destroy() {
+    }
+}
+```
 
 要解决上述问题，我们可以对Servlet接口进行继承封装，来简化代码开发。
-[code] 
-    package com.itheima.web;import javax.servlet.*;import javax.servlet.http.HttpServletRequest;import java.io.IOException;public class MyHttpServlet implements Servlet {    public void init(ServletConfig config) throws ServletException {    }    public ServletConfig getServletConfig() {        return null;    }    public void service(ServletRequest req, ServletResponse res) throws ServletException, IOException {        HttpServletRequest request = (HttpServletRequest)req;        //1. 获取请求方式        String method = request.getMethod();        //2. 判断        if("GET".equals(method)){            // get方式的处理逻辑            doGet(req,res);        }else if("POST".equals(method)){            // post方式的处理逻辑            doPost(req,res);        }    }    protected void doPost(ServletRequest req, ServletResponse res) {    }    protected void doGet(ServletRequest req, ServletResponse res) {    }    public String getServletInfo() {        return null;    }    public void destroy() {    }}
-[/code]
+
+```java
+package com.itheima.web;
+import javax.servlet.*;
+import javax.servlet.http.HttpServletRequest;
+import java.io.IOException;
+public class MyHttpServlet implements Servlet {
+    public void init(ServletConfig config) throws ServletException {
+    }
+    public ServletConfig getServletConfig() {
+        return null;
+    }
+    public void service(ServletRequest req, ServletResponse res) throws ServletException, IOException {
+        HttpServletRequest request = (HttpServletRequest)req;
+        //1. 获取请求方式
+        String method = request.getMethod();
+        //2. 判断
+        if("GET".equals(method)){
+            // get方式的处理逻辑            doGet(req,res);
+        }
+        else if("POST".equals(method)){
+            // post方式的处理逻辑            doPost(req,res);
+        }
+    }
+    protected void doPost(ServletRequest req, ServletResponse res) {
+    }
+    protected void doGet(ServletRequest req, ServletResponse res) {
+    }
+    public String getServletInfo() {
+        return null;
+    }
+    public void destroy() {
+    }
+}
+```
 
 有了MyHttpServlet这个类，以后我们再编写Servlet类的时候，只需要继承MyHttpServlet，重写父类中的doGet和doPost方法，就可以用来处理GET和POST请求的业务逻辑。接下来，可以把ServletDemo5代码进行改造
-[code] 
-    @WebServlet("/demo5")public class ServletDemo5 extends MyHttpServlet {    @Override    protected void doGet(ServletRequest req, ServletResponse res) {        System.out.println("get...");    }    @Override    protected void doPost(ServletRequest req, ServletResponse res) {        System.out.println("post...");    }}
-[/code]
+
+```java
+@WebServlet("/demo5")
+public class ServletDemo5 extends MyHttpServlet {
+    @Override
+    protected void doGet(ServletRequest req, ServletResponse res) {
+        System.out.println("get...");
+    }
+    @Override
+    protected void doPost(ServletRequest req, ServletResponse res) {
+        System.out.println("post...");
+    }
+}
+```
 
 将来页面发送的是GET请求，则会进入到doGet方法中进行执行，如果是POST请求，则进入到doPost方法。这样代码在编写的时候就相对来说更加简单快捷。
 
 类似MyHttpServlet这样的类Servlet中已经为我们提供好了，就是HttpServlet,翻开源码，大家可以搜索`service()`方法，你会发现HttpServlet做的事更多，不仅可以处理GET和POST还可以处理其他五种请求方式。
-[code] 
-    protected void service(HttpServletRequest req, HttpServletResponse resp)        throws ServletException, IOException    {        String method = req.getMethod();        if (method.equals(METHOD_GET)) {            long lastModified = getLastModified(req);            if (lastModified == -1) {                // servlet doesn't support if-modified-since, no reason                // to go through further expensive logic                doGet(req, resp);            } else {                long ifModifiedSince = req.getDateHeader(HEADER_IFMODSINCE);                if (ifModifiedSince < lastModified) {                    // If the servlet mod time is later, call doGet()                    // Round down to the nearest second for a proper compare                    // A ifModifiedSince of -1 will always be less                    maybeSetLastModified(resp, lastModified);                    doGet(req, resp);                } else {                    resp.setStatus(HttpServletResponse.SC_NOT_MODIFIED);                }            }        } else if (method.equals(METHOD_HEAD)) {            long lastModified = getLastModified(req);            maybeSetLastModified(resp, lastModified);            doHead(req, resp);        } else if (method.equals(METHOD_POST)) {            doPost(req, resp);                    } else if (method.equals(METHOD_PUT)) {            doPut(req, resp);                    } else if (method.equals(METHOD_DELETE)) {            doDelete(req, resp);                    } else if (method.equals(METHOD_OPTIONS)) {            doOptions(req,resp);                    } else if (method.equals(METHOD_TRACE)) {            doTrace(req,resp);                    } else {            //            // Note that this means NO servlet supports whatever            // method was requested, anywhere on this server.            //            String errMsg = lStrings.getString("http.method_not_implemented");            Object[] errArgs = new Object[1];            errArgs[0] = method;            errMsg = MessageFormat.format(errMsg, errArgs);                        resp.sendError(HttpServletResponse.SC_NOT_IMPLEMENTED, errMsg);        }    }
-[/code]
+
+```java
+protected void service(HttpServletRequest req, HttpServletResponse resp)        throws ServletException, IOException    {
+    String method = req.getMethod();
+    if (method.equals(METHOD_GET)) {
+        long lastModified = getLastModified(req);
+        if (lastModified == -1) {
+            // servlet doesn't support
+            if-modified-since, no reason
+            // to go through further expensive logic                doGet(req, resp);
+        }
+        else {
+            long ifModifiedSince = req.getDateHeader(HEADER_IFMODSINCE);
+            if (ifModifiedSince < lastModified) {
+                // If the servlet mod time is later, call doGet()                    // Round down to the nearest second
+                for a proper compare
+                // A ifModifiedSince of -1 will always be less                    maybeSetLastModified(resp, lastModified);                    doGet(req, resp);
+            }
+            else {
+                resp.setStatus(HttpServletResponse.SC_NOT_MODIFIED);
+            }
+        }
+    }
+    else if (method.equals(METHOD_HEAD)) {
+        long lastModified = getLastModified(req);
+        maybeSetLastModified(resp, lastModified);
+        doHead(req, resp);
+    }
+    else if (method.equals(METHOD_POST)) {
+        doPost(req, resp);
+    }
+    else if (method.equals(METHOD_PUT)) {
+        doPut(req, resp);
+    }
+    else if (method.equals(METHOD_DELETE)) {
+        doDelete(req, resp);
+    }
+    else if (method.equals(METHOD_OPTIONS)) {
+        doOptions(req,resp);
+    }
+    else if (method.equals(METHOD_TRACE)) {
+        doTrace(req,resp);
+    }
+    else {
+        //            // Note that this means NO servlet supports whatever            // method was requested, anywhere on this server.            //
+        String errMsg = lStrings.getString("http.method_not_implemented");
+        Object[] errArgs = new Object[1];
+        errArgs[0] = method;
+        errMsg = MessageFormat.format(errMsg, errArgs);
+        resp.sendError(HttpServletResponse.SC_NOT_IMPLEMENTED, errMsg);
+    }
+}
+```
 
 **小结**
 
@@ -936,8 +1319,24 @@ Servlet类编写好后，要想被访问到，就需要配置其访问路径（=
   * 一个Servlet,可以配置多个urlPattern
 
 ![1627272805178](/assets/1627272805178.png)
-[code] package com.itheima.web;import javax.servlet.ServletRequest;import javax.servlet.ServletResponse;import javax.servlet.annotation.WebServlet;/*** urlPattern: 一个Servlet可以配置多个访问路径*/@WebServlet(urlPatterns = {"/demo7","/demo8"})public class ServletDemo7 extends MyHttpServlet {    @Override    protected void doGet(ServletRequest req, ServletResponse res) {                System.out.println("demo7 get...");    }    @Override    protected void doPost(ServletRequest req, ServletResponse res) {    }}
-[/code]
+
+```java
+package com.itheima.web;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
+import javax.servlet.annotation.WebServlet;
+/*** urlPattern: 一个Servlet可以配置多个访问路径*/
+@WebServlet(urlPatterns
+= {"/demo7","/demo8"})public class ServletDemo7 extends MyHttpServlet {
+    @Override
+    protected void doGet(ServletRequest req, ServletResponse res) {
+        System.out.println("demo7 get...");
+    }
+    @Override
+    protected void doPost(ServletRequest req, ServletResponse res) {
+    }
+}
+```
 
 在浏览器上输入`http://localhost:8080/web-demo/demo7`,`http://localhost:8080/web-demo/demo8`这两个地址都能访问到ServletDemo7的doGet方法。
 
@@ -946,16 +1345,44 @@ Servlet类编写好后，要想被访问到，就需要配置其访问路径（=
     * 精确匹配
 
 ![1627273174144](/assets/1627273174144.png)
-[code] /** * UrlPattern: * * 精确匹配 */@WebServlet(urlPatterns = "/user/select")public class ServletDemo8 extends MyHttpServlet {    @Override    protected void doGet(ServletRequest req, ServletResponse res) {        System.out.println("demo8 get...");    }    @Override    protected void doPost(ServletRequest req, ServletResponse res) {    }}
-[/code]
+
+```java
+/** * UrlPattern: * * 精确匹配 */
+@WebServlet(urlPatterns
+= "/user/select")public class ServletDemo8 extends MyHttpServlet {
+    @Override
+    protected void doGet(ServletRequest req, ServletResponse res) {
+        System.out.println("demo8 get...");
+    }
+    @Override
+    protected void doPost(ServletRequest req, ServletResponse res) {
+    }
+}
+```
 
 访问路径`http://localhost:8080/web-demo/user/select`
 
     * 目录匹配
 
 ![1627273184095](/assets/1627273184095.png)
-[code] package com.itheima.web;import javax.servlet.ServletRequest;import javax.servlet.ServletResponse;import javax.servlet.annotation.WebServlet;/** * UrlPattern: * * 目录匹配: /user/* */@WebServlet(urlPatterns = "/user/*")public class ServletDemo9 extends MyHttpServlet {    @Override    protected void doGet(ServletRequest req, ServletResponse res) {        System.out.println("demo9 get...");    }    @Override    protected void doPost(ServletRequest req, ServletResponse res) {    }}
-[/code]
+
+```java
+package com.itheima.web;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
+import javax.servlet.annotation.WebServlet;
+/** * UrlPattern: * * 目录匹配: /user/* */
+@WebServlet(urlPatterns
+= "/user/*")public class ServletDemo9 extends MyHttpServlet {
+    @Override
+    protected void doGet(ServletRequest req, ServletResponse res) {
+        System.out.println("demo9 get...");
+    }
+    @Override
+    protected void doPost(ServletRequest req, ServletResponse res) {
+    }
+}
+```
 
 访问路径`http://localhost:8080/web-demo/user/任意`
 
@@ -970,8 +1397,24 @@ Servlet类编写好后，要想被访问到，就需要配置其访问路径（=
     * 扩展名匹配
 
 ![1627273194118](/assets/1627273194118.png)
-[code] package com.itheima.web;import javax.servlet.ServletRequest;import javax.servlet.ServletResponse;import javax.servlet.annotation.WebServlet;/** * UrlPattern: * * 扩展名匹配: *.do */@WebServlet(urlPatterns = "*.do")public class ServletDemo10 extends MyHttpServlet {    @Override    protected void doGet(ServletRequest req, ServletResponse res) {        System.out.println("demo10 get...");    }    @Override    protected void doPost(ServletRequest req, ServletResponse res) {    }}
-[/code]
+
+```java
+package com.itheima.web;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
+import javax.servlet.annotation.WebServlet;
+/** * UrlPattern: * * 扩展名匹配: *.do */
+@WebServlet(urlPatterns
+= "*.do")public class ServletDemo10 extends MyHttpServlet {
+    @Override
+    protected void doGet(ServletRequest req, ServletResponse res) {
+        System.out.println("demo10 get...");
+    }
+    @Override
+    protected void doPost(ServletRequest req, ServletResponse res) {
+    }
+}
+```
 
 访问路径`http://localhost:8080/web-demo/任意.do`
 
@@ -988,12 +1431,44 @@ Servlet类编写好后，要想被访问到，就需要配置其访问路径（=
     * 任意匹配
 
 ![1627273201370](/assets/1627273201370.png)
-[code] package com.itheima.web;import javax.servlet.ServletRequest;import javax.servlet.ServletResponse;import javax.servlet.annotation.WebServlet;/** * UrlPattern: * * 任意匹配： / */@WebServlet(urlPatterns = "/")public class ServletDemo11 extends MyHttpServlet {    @Override    protected void doGet(ServletRequest req, ServletResponse res) {        System.out.println("demo11 get...");    }    @Override    protected void doPost(ServletRequest req, ServletResponse res) {    }}
-[/code]
+
+```java
+package com.itheima.web;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
+import javax.servlet.annotation.WebServlet;
+/** * UrlPattern: * * 任意匹配： / */
+@WebServlet(urlPatterns
+= "/")public class ServletDemo11 extends MyHttpServlet {
+    @Override
+    protected void doGet(ServletRequest req, ServletResponse res) {
+        System.out.println("demo11 get...");
+    }
+    @Override
+    protected void doPost(ServletRequest req, ServletResponse res) {
+    }
+}
+```
 
 访问路径`http://localhost:8080/demo-web/任意`
-[code] package com.itheima.web;import javax.servlet.ServletRequest;import javax.servlet.ServletResponse;import javax.servlet.annotation.WebServlet;/** * UrlPattern: * * 任意匹配： /* */@WebServlet(urlPatterns = "/*")public class ServletDemo12 extends MyHttpServlet {    @Override    protected void doGet(ServletRequest req, ServletResponse res) {        System.out.println("demo12 get...");    }    @Override    protected void doPost(ServletRequest req, ServletResponse res) {    }}
-[/code]
+
+```java
+package com.itheima.web;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
+import javax.servlet.annotation.WebServlet;
+/** * UrlPattern: * * 任意匹配： /* */
+@WebServlet(urlPatterns
+= "/*")public class ServletDemo12 extends MyHttpServlet {
+    @Override
+    protected void doGet(ServletRequest req, ServletResponse res) {
+        System.out.println("demo12 get...");
+    }
+    @Override
+    protected void doPost(ServletRequest req, ServletResponse res) {
+    }
+}
+```
 
 访问路径`[http://localhost:8080/demo-web/任意](<http://localhost:8080/demo-web/%E4%BB%BB%E6%84%8F>)
 
@@ -1022,15 +1497,51 @@ Servlet类编写好后，要想被访问到，就需要配置其访问路径（=
   * 编写Servlet类
 
 
-[code] 
-    package com.itheima.web;import javax.servlet.ServletRequest;import javax.servlet.ServletResponse;import javax.servlet.annotation.WebServlet;public class ServletDemo13 extends MyHttpServlet {    @Override    protected void doGet(ServletRequest req, ServletResponse res) {        System.out.println("demo13 get...");    }    @Override    protected void doPost(ServletRequest req, ServletResponse res) {    }}
-[/code]
+```java
+package com.itheima.web;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
+import javax.servlet.annotation.WebServlet;
+public class ServletDemo13 extends MyHttpServlet {
+    @Override
+    protected void doGet(ServletRequest req, ServletResponse res) {
+        System.out.println("demo13 get...");
+    }
+    @Override
+    protected void doPost(ServletRequest req, ServletResponse res) {
+    }
+}
+```
 
   * 在web.xml中配置该Servlet
 
 
-[code] 
-    <?xml version="1.0" encoding="UTF-8"?><web-app xmlns="http://xmlns.jcp.org/xml/ns/javaee"         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"         xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee http://xmlns.jcp.org/xml/ns/javaee/web-app_4_0.xsd"         version="4.0">                <!--         Servlet 全类名    -->    <servlet>        <!-- servlet的名称，名字任意-->        <servlet-name>demo13</servlet-name>        <!--servlet的类全名-->        <servlet-class>com.itheima.web.ServletDemo13</servlet-class>    </servlet>    <!--         Servlet 访问路径    -->    <servlet-mapping>        <!-- servlet的名称，要和上面的名称一致-->        <servlet-name>demo13</servlet-name>        <!-- servlet的访问路径-->        <url-pattern>/demo13</url-pattern>    </servlet-mapping></web-app>
-[/code]
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+    <web-app xmlns="http://xmlns.jcp.org/xml/ns/javaee"         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"         xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee http://xmlns.jcp.org/xml/ns/javaee/web-app_4_0.xsd"         version="4.0">
+        <!--         Servlet 全类名    -->
+        <servlet>
+            <!-- servlet的名称，名字任意-->
+            <servlet-name>
+                demo13
+            </servlet-name>
+            <!--servlet的类全名-->
+            <servlet-class>
+                com.itheima.web.ServletDemo13
+            </servlet-class>
+        </servlet>
+        <!--         Servlet 访问路径    -->
+        <servlet-mapping>
+            <!-- servlet的名称，要和上面的名称一致-->
+            <servlet-name>
+                demo13
+            </servlet-name>
+            <!-- servlet的访问路径-->
+            <url-pattern>
+                /demo13
+            </url-pattern>
+        </servlet-mapping>
+    </web-app>
+```
 
 这种配置方式和注解比起来，确认麻烦很多，所以建议大家使用注解来开发。但是大家要认识上面这种配置方式，因为并不是所有的项目都是基于注解开发的。

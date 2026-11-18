@@ -1,8 +1,13 @@
 ---
 title: "Redis语法以及一些基本应用"
 date: 2024-07-17 00:00:00
-tags: []
-categories: []
+
+categories:
+  - 数据库
+tags:
+  - Redis
+  - 数据结构
+  - 缓存
 ---
 
 # Redis语法以及一些基本应用
@@ -52,9 +57,10 @@ hashmap结构 value是一个无序字典
 String结构是将对象序列化为JSON字符串后存储，当我们需要修改的时候很不方便，所以我们用hash类型来解决
 
 Redis hash 是一个string类型的field和value的映射表，hash特别适合用于存储对象。
-[code] 
-    HMSET w3ckey name "redis tutorial" description "redis basic commands for caching" likes 20 visitors 23000HGETALL w3ckey
-[/code]
+
+```java
+HMSET w3ckey name "redis tutorial" description "redis basic commands for caching" likes 20 visitors 23000HGETALL w3ckey
+```
 
 ![image-20240709215238372](https://wilsit-img.oss-cn-guangzhou.aliyuncs.com/img/image-20240709215238372.png)
 
@@ -72,9 +78,10 @@ Redis hash 是一个string类型的field和value的映射表，hash特别适合�
 
 
 例子：
-[code] 
-    HSET myhash field 5HINCRBY myhash field 1HINCRBY myhash field -1HINCRBY myhash field -10
-[/code]
+
+```
+HSET myhash field 5HINCRBY myhash field 1HINCRBY myhash field -1HINCRBY myhash field -10
+```
 
 list类型
 
@@ -150,9 +157,36 @@ jedis本身是线程不安全的，频繁的创建和销毁链接会有性能损
 json序列化的问题
 
 用spring自带的json解析器（jackson）
-[code] 
-    package com.wislist.iteam.util;import org.springframework.context.annotation.Bean;import org.springframework.context.annotation.Configuration;import org.springframework.data.redis.connection.RedisConnectionFactory;import org.springframework.data.redis.core.RedisTemplate;import org.springframework.data.redis.serializer.GenericJackson2JsonRedisSerializer;import org.springframework.data.redis.serializer.RedisSerializer;@Configurationpublic class RedisConfig {    @Bean    public RedisTemplate<String, Object> redisTemplate(RedisConnectionFactory connectionFactory){        //创建RedisTemplate对象        RedisTemplate<String, Object> template = new RedisTemplate<>();        //设置连接工厂        template.setConnectionFactory(connectionFactory);        //创建JSON序列化工具        GenericJackson2JsonRedisSerializer jsonRedisSerializer = new GenericJackson2JsonRedisSerializer();        //设置key的序列化        template.setKeySerializer(RedisSerializer.string());        template.setHashKeySerializer(RedisSerializer.string());        //设置value的序列化        template.setValueSerializer(jsonRedisSerializer);        template.setHashValueSerializer(jsonRedisSerializer);        //返回        return template;    }}
-[/code]
+
+```java
+package com.wislist.iteam.util;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.data.redis.connection.RedisConnectionFactory;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.serializer.GenericJackson2JsonRedisSerializer;
+import org.springframework.data.redis.serializer.RedisSerializer;
+@Configurationpublic
+class RedisConfig {
+    @Bean
+    public RedisTemplate<String, Object> redisTemplate(RedisConnectionFactory connectionFactory){
+        //创建RedisTemplate对象        RedisTemplate<String, Object> template =
+        new RedisTemplate<>();
+        //设置连接工厂
+        template.setConnectionFactory(connectionFactory);
+        //创建JSON序列化工具        GenericJackson2JsonRedisSerializer jsonRedisSerializer =
+        new GenericJackson2JsonRedisSerializer();
+        //设置key的序列化
+        template.setKeySerializer(RedisSerializer.string());
+        template.setHashKeySerializer(RedisSerializer.string());
+        //设置value的序列化
+        template.setValueSerializer(jsonRedisSerializer);
+        template.setHashValueSerializer(jsonRedisSerializer);
+        //返回
+        return template;
+    }
+}
+```
 
 同时也会存在一些问题
 
@@ -165,17 +199,95 @@ Spring提供了一个StringRedisTemplate类，默认key和value就是String方�
 两种序列化实际：
 
 一、自定义RedisTemplate
-[code] 
-    package com.wislist.demoredis.untils;import org.springframework.context.annotation.Bean;import org.springframework.context.annotation.Configuration;import org.springframework.data.redis.connection.RedisConnectionFactory;import org.springframework.data.redis.core.RedisTemplate;import org.springframework.data.redis.serializer.GenericJackson2JsonRedisSerializer;import org.springframework.data.redis.serializer.RedisSerializer;@Configurationpublic class RedisConfig {    @Bean    public RedisTemplate<String , Object> redisTemplate(RedisConnectionFactory connectionFactory){        //创建RedisTemplate对象        RedisTemplate<String, Object> template = new RedisTemplate<>();        //设置连接工厂        template.setConnectionFactory(connectionFactory);        //创建序列化工厂        GenericJackson2JsonRedisSerializer jsonRedisSerializer = new GenericJackson2JsonRedisSerializer();        //设置key的序列化        template.setKeySerializer(RedisSerializer.string());        template.setHashValueSerializer(RedisSerializer.string());        //value的序列化        template.setValueSerializer(jsonRedisSerializer);        template.setHashKeySerializer(jsonRedisSerializer);        //返回        return template;    }}
-[/code]
-[code] 
-    package com.wislist.demoredis.text;import org.junit.jupiter.api.Test;import org.springframework.beans.factory.annotation.Autowired;import org.springframework.boot.test.context.SpringBootTest;import org.springframework.data.redis.core.RedisTemplate;@SpringBootTestpublic class JedisTest {    @Autowired    private RedisTemplate redisTemplate;    @Test    void testString() {        redisTemplate.opsForValue().set("name","wislist");        Object name = redisTemplate.opsForValue().get("name");        System.out.println("name=" + name);    }}
-[/code]
+
+```java
+package com.wislist.demoredis.untils;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.data.redis.connection.RedisConnectionFactory;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.serializer.GenericJackson2JsonRedisSerializer;
+import org.springframework.data.redis.serializer.RedisSerializer;
+@Configurationpublic
+class RedisConfig {
+    @Bean
+    public RedisTemplate<String , Object> redisTemplate(RedisConnectionFactory connectionFactory){
+        //创建RedisTemplate对象        RedisTemplate<String, Object> template =
+        new RedisTemplate<>();
+        //设置连接工厂
+        template.setConnectionFactory(connectionFactory);
+        //创建序列化工厂        GenericJackson2JsonRedisSerializer jsonRedisSerializer =
+        new GenericJackson2JsonRedisSerializer();
+        //设置key的序列化
+        template.setKeySerializer(RedisSerializer.string());
+        template.setHashValueSerializer(RedisSerializer.string());
+        //value的序列化
+        template.setValueSerializer(jsonRedisSerializer);
+        template.setHashKeySerializer(jsonRedisSerializer);
+        //返回
+        return template;
+    }
+}
+```
+
+```java
+package com.wislist.demoredis.text;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.redis.core.RedisTemplate;
+@SpringBootTestpublic
+class JedisTest {
+    @Autowired
+    private RedisTemplate redisTemplate;
+    @Test
+    void testString() {
+        redisTemplate.opsForValue().set("name","wislist");
+        Object name = redisTemplate.opsForValue().get("name");
+        System.out.println("name=" + name);
+    }
+}
+```
 
 二、使用StringRedisTemplate；写入redis时手动进行序列化
-[code] 
-    package com.wislist.demoredis.text;import com.fasterxml.jackson.core.JsonProcessingException;import com.fasterxml.jackson.databind.ObjectMapper;import com.wislist.demoredis.pojo.User;import org.junit.jupiter.api.Test;import org.springframework.beans.factory.annotation.Autowired;import org.springframework.boot.autoconfigure.security.SecurityProperties;import org.springframework.boot.test.context.SpringBootTest;import org.springframework.data.redis.core.RedisTemplate;import org.springframework.data.redis.core.StringRedisTemplate;@SpringBootTestpublic class JedisStringTest {    @Autowired    private StringRedisTemplate stringRedisTemplate;    @Test    void testString() {        stringRedisTemplate.opsForValue().set("name","胡歌");        Object name = stringRedisTemplate.opsForValue().get("name");        System.out.println("name=" + name);    }    private static final ObjectMapper mapper = new ObjectMapper();    @Test    void textSaveUser() throws JsonProcessingException {        User user = new User("胡歌",21);        //手动序列化        String json = mapper.writeValueAsString(user);        //写入数据        stringRedisTemplate.opsForValue().set("user:200",json);        //获取数据        String jsonUser = stringRedisTemplate.opsForValue().get("user:200");        //手动反序列化        User user1 = mapper.readValue(jsonUser,User.class);        System.out.println(user1);    }}
-[/code]
+
+```java
+package com.wislist.demoredis.text;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.wislist.demoredis.pojo.User;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.security.SecurityProperties;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.StringRedisTemplate;
+@SpringBootTestpublic
+class JedisStringTest {
+    @Autowired
+    private StringRedisTemplate stringRedisTemplate;
+    @Test
+    void testString() {
+        stringRedisTemplate.opsForValue().set("name","胡歌");
+        Object name = stringRedisTemplate.opsForValue().get("name");
+        System.out.println("name=" + name);
+    }
+    private static final ObjectMapper mapper = new ObjectMapper();
+    @Test
+    void textSaveUser() throws JsonProcessingException {
+        User user = new User("胡歌",21);
+        //手动序列化
+        String json = mapper.writeValueAsString(user);
+        //写入数据
+        stringRedisTemplate.opsForValue().set("user:200",json);
+        //获取数据
+        String jsonUser = stringRedisTemplate.opsForValue().get("user:200");
+        //手动反序列化        User user1 =
+        mapper.readValue(jsonUser,User.class);
+        System.out.println(user1);
+    }
+}
+```
 
 **实战部分**
 
@@ -262,9 +374,10 @@ tomcat提供过数据拷贝的功能 但是会占用很大的内存空间
 
 
 代码部分：
-[code] 
-    Shop shop = cacheClient                .queryWithPassThrough(CACHE_SHOP_KEY, id, Shop.class, this::getById, CACHE_SHOP_TTL, TimeUnit.MINUTES);
-[/code]
+
+```java
+Shop shop = cacheClient                .queryWithPassThrough(CACHE_SHOP_KEY, id, Shop.class, this::getById, CACHE_SHOP_TTL, TimeUnit.MINUTES);
+```
 
 **缓存雪崩**
 
@@ -301,14 +414,64 @@ tomcat提供过数据拷贝的功能 但是会占用很大的内存空间
 **操作锁的代码**
 
 利用redis的setnx方法来表示获取锁，该方法的含义是redis如果没有这个key则插入成功，返回1，在stringRedisTemplate中返回true，如果这个key插入失败 返回0，在stringRedisTemplate返回false，我们可以通过返回的结果来判断是否有线程成功插入key，插入成功的线程就是获得锁的线程。
-[code] 
-    private boolean tryLock(String key) {    Boolean flag = stringRedisTemplate.opsForValue().setIfAbsent(key, "1", 10, TimeUnit.SECONDS);    return BooleanUtil.isTrue(flag);}private void unlock(String key) {    stringRedisTemplate.delete(key);}
-[/code]
+
+```java
+private boolean tryLock(String key) {
+    Boolean flag = stringRedisTemplate.opsForValue().setIfAbsent(key, "1", 10, TimeUnit.SECONDS);
+    return BooleanUtil.isTrue(flag);
+}
+private void unlock(String key) {
+    stringRedisTemplate.delete(key);
+}
+```
 
 **操作代码：**
-[code] 
-    public Shop queryWithMutex(Long id)  {       String key = CACHE_SHOP_KEY + id;       // 1、从redis中查询商铺缓存       String shopJson = stringRedisTemplate.opsForValue().get("key");       // 2、判断是否存在       if (StrUtil.isNotBlank(shopJson)) {           // 存在,直接返回           return JSONUtil.toBean(shopJson, Shop.class);       }       //判断命中的值是否是空值       if (shopJson != null) {           //返回一个错误信息           return null;       }       // 4.实现缓存重构       //4.1 获取互斥锁       String lockKey = "lock:shop:" + id;       Shop shop = null;       try {           boolean isLock = tryLock(lockKey);           // 4.2 判断否获取成功           if(!isLock){               //4.3 失败，则休眠重试               Thread.sleep(50);               return queryWithMutex(id);           }           //4.4 成功，根据id查询数据库            shop = getById(id);           // 5.不存在，返回错误           if(shop == null){                //将空值写入redis               stringRedisTemplate.opsForValue().set(key,"",CACHE_NULL_TTL,TimeUnit.MINUTES);               //返回错误信息               return null;           }           //6.写入redis           stringRedisTemplate.opsForValue().set(key,JSONUtil.toJsonStr(shop),CACHE_NULL_TTL,TimeUnit.MINUTES);       }catch (Exception e){           throw new RuntimeException(e);       }       finally {           //7.释放互斥锁           unlock(lockKey);       }       return shop;   }
-[/code]
+
+```java
+public Shop queryWithMutex(Long id)  {
+    String key = CACHE_SHOP_KEY + id;
+    // 1、从redis中查询商铺缓存
+    String shopJson = stringRedisTemplate.opsForValue().get("key");
+    // 2、判断是否存在
+    if (StrUtil.isNotBlank(shopJson)) {
+        // 存在,直接返回
+        return JSONUtil.toBean(shopJson, Shop.class);
+    }
+    //判断命中的值是否是空值
+    if (shopJson != null) {
+        //返回一个错误信息
+        return null;
+    }
+    // 4.实现缓存重构       //4.1 获取互斥锁
+    String lockKey = "lock:shop:" + id;
+    Shop shop = null;
+    try {
+        boolean isLock = tryLock(lockKey);
+        // 4.2 判断否获取成功
+        if(!isLock){
+            //4.3 失败，则休眠重试
+            Thread.sleep(50);
+            return queryWithMutex(id);
+        }
+        //4.4 成功，根据id查询数据库            shop = getById(id);           // 5.不存在，返回错误
+        if(shop == null){
+            //将空值写入redis
+            stringRedisTemplate.opsForValue().set(key,"",CACHE_NULL_TTL,TimeUnit.MINUTES);
+            //返回错误信息
+            return null;
+        }
+        //6.写入redis
+        stringRedisTemplate.opsForValue().set(key,JSONUtil.toJsonStr(shop),CACHE_NULL_TTL,TimeUnit.MINUTES);
+    }
+    catch (Exception e){
+        throw new RuntimeException(e);
+    }
+    finally {
+        //7.释放互斥锁           unlock(lockKey);
+    }
+    return shop;
+}
+```
 
 问题就是：当一个线程在做缓存的时候 其他线程在等待 若是这一个线程在同步的过程中等待的时间过久 就会使得项目运行缓慢 类似线程饥饿
 
@@ -332,9 +495,14 @@ tomcat提供过数据拷贝的功能 但是会占用很大的内存空间
 如果封装数据：因为现在redis中存储的数据的vlaue需要带上过期时间，此时要么你去修改原来的实体类，要么就采用以下方案：
 
 一、新建一个实体类，这个方案对原来的代码没有侵入性。
-[code] 
-    @Datapublic class RedisData {    private LocalDateTime expireTime;    private Object data;}
-[/code]
+
+```java
+@Datapublic
+class RedisData {
+    private LocalDateTime expireTime;
+    private Object data;
+}
+```
 
 二、在**ShopServiceImpl** 新增此方法，利用单元测试进行缓存预热
 
@@ -345,9 +513,40 @@ tomcat提供过数据拷贝的功能 但是会占用很大的内存空间
 ![image-20240825205920339](https://wilsit-img.oss-cn-guangzhou.aliyuncs.com/img/image-20240825205920339.png)
 
 **步骤三** ：
-[code] 
-    private static final ExecutorService CACHE_REBUILD_EXECUTOR = Executors.newFixedThreadPool(10);public Shop queryWithLogicalExpire( Long id ) {    String key = CACHE_SHOP_KEY + id;    // 1.从redis查询商铺缓存    String json = stringRedisTemplate.opsForValue().get(key);    // 2.判断是否存在    if (StrUtil.isBlank(json)) {        // 3.存在，直接返回        return null;    }    // 4.命中，需要先把json反序列化为对象    RedisData redisData = JSONUtil.toBean(json, RedisData.class);    Shop shop = JSONUtil.toBean((JSONObject) redisData.getData(), Shop.class);    LocalDateTime expireTime = redisData.getExpireTime();    // 5.判断是否过期    if(expireTime.isAfter(LocalDateTime.now())) {        // 5.1.未过期，直接返回店铺信息        return shop;    }    // 5.2.已过期，需要缓存重建    // 6.缓存重建    // 6.1.获取互斥锁    String lockKey = LOCK_SHOP_KEY + id;    boolean isLock = tryLock(lockKey);    // 6.2.判断是否获取锁成功    if (isLock){        CACHE_REBUILD_EXECUTOR.submit( ()->{            try{                //重建缓存                this.saveShop2Redis(id,20L);            }catch (Exception e){                throw new RuntimeException(e);            }finally {                unlock(lockKey);            }        });    }    // 6.4.返回过期的商铺信息    return shop;}
-[/code]
+
+```java
+private static final ExecutorService CACHE_REBUILD_EXECUTOR = Executors.newFixedThreadPool(10);
+public Shop queryWithLogicalExpire( Long id ) {
+    String key = CACHE_SHOP_KEY + id;
+    // 1.从redis查询商铺缓存
+    String json = stringRedisTemplate.opsForValue().get(key);
+    // 2.判断是否存在
+    if (StrUtil.isBlank(json)) {
+        // 3.存在，直接返回
+        return null;
+    }
+    // 4.命中，需要先把json反序列化为对象    RedisData redisData =
+    JSONUtil.toBean(json, RedisData.class);
+    Shop shop = JSONUtil.toBean((JSONObject) redisData.getData(), Shop.class);
+    LocalDateTime expireTime = redisData.getExpireTime();
+    // 5.判断是否过期
+    if(expireTime.isAfter(LocalDateTime.now())) {
+        // 5.1.未过期，直接返回店铺信息
+        return shop;
+    }
+    // 5.2.已过期，需要缓存重建    // 6.缓存重建    // 6.1.获取互斥锁
+    String lockKey = LOCK_SHOP_KEY + id;
+    boolean isLock = tryLock(lockKey);
+    // 6.2.判断是否获取锁成功
+    if (isLock){
+        CACHE_REBUILD_EXECUTOR.submit( ()->{            try{
+        //重建缓存
+        this.saveShop2Redis(id,20L);            }catch (Exception e){                throw new RuntimeException(e);            }finally {                unlock(lockKey);            }        });
+    }
+    // 6.4.返回过期的商铺信息
+    return shop;
+}
+```
 
 ​ 这种方案好在异步的构建缓存，缺点就是在构建完缓存之前，返回的都是脏数据。
 
@@ -370,11 +569,159 @@ tomcat提供过数据拷贝的功能 但是会占用很大的内存空间
 
 
 将逻辑进行封装
-[code] 
-    @Slf4j@Componentpublic class CacheClient {    private final StringRedisTemplate stringRedisTemplate;    private static final ExecutorService CACHE_REBUILD_EXECUTOR = Executors.newFixedThreadPool(10);    public CacheClient(StringRedisTemplate stringRedisTemplate) {        this.stringRedisTemplate = stringRedisTemplate;    }    public void set(String key, Object value, Long time, TimeUnit unit) {        stringRedisTemplate.opsForValue().set(key, JSONUtil.toJsonStr(value), time, unit);    }    public void setWithLogicalExpire(String key, Object value, Long time, TimeUnit unit) {        // 设置逻辑过期        RedisData redisData = new RedisData();        redisData.setData(value);        redisData.setExpireTime(LocalDateTime.now().plusSeconds(unit.toSeconds(time)));        // 写入Redis        stringRedisTemplate.opsForValue().set(key, JSONUtil.toJsonStr(redisData));    }    public <R,ID> R queryWithPassThrough(            String keyPrefix, ID id, Class<R> type, Function<ID, R> dbFallback, Long time, TimeUnit unit){        String key = keyPrefix + id;        // 1.从redis查询商铺缓存        String json = stringRedisTemplate.opsForValue().get(key);        // 2.判断是否存在        if (StrUtil.isNotBlank(json)) {            // 3.存在，直接返回            return JSONUtil.toBean(json, type);        }        // 判断命中的是否是空值        if (json != null) {            // 返回一个错误信息            return null;        }        // 4.不存在，根据id查询数据库        R r = dbFallback.apply(id);        // 5.不存在，返回错误        if (r == null) {            // 将空值写入redis            stringRedisTemplate.opsForValue().set(key, "", CACHE_NULL_TTL, TimeUnit.MINUTES);            // 返回错误信息            return null;        }        // 6.存在，写入redis        this.set(key, r, time, unit);        return r;    }    public <R, ID> R queryWithLogicalExpire(            String keyPrefix, ID id, Class<R> type, Function<ID, R> dbFallback, Long time, TimeUnit unit) {        String key = keyPrefix + id;        // 1.从redis查询商铺缓存        String json = stringRedisTemplate.opsForValue().get(key);        // 2.判断是否存在        if (StrUtil.isBlank(json)) {            // 3.存在，直接返回            return null;        }        // 4.命中，需要先把json反序列化为对象        RedisData redisData = JSONUtil.toBean(json, RedisData.class);        R r = JSONUtil.toBean((JSONObject) redisData.getData(), type);        LocalDateTime expireTime = redisData.getExpireTime();        // 5.判断是否过期        if(expireTime.isAfter(LocalDateTime.now())) {            // 5.1.未过期，直接返回店铺信息            return r;        }        // 5.2.已过期，需要缓存重建        // 6.缓存重建        // 6.1.获取互斥锁        String lockKey = LOCK_SHOP_KEY + id;        boolean isLock = tryLock(lockKey);        // 6.2.判断是否获取锁成功        if (isLock){            // 6.3.成功，开启独立线程，实现缓存重建            CACHE_REBUILD_EXECUTOR.submit(() -> {                try {                    // 查询数据库                    R newR = dbFallback.apply(id);                    // 重建缓存                    this.setWithLogicalExpire(key, newR, time, unit);                } catch (Exception e) {                    throw new RuntimeException(e);                }finally {                    // 释放锁                    unlock(lockKey);                }            });        }        // 6.4.返回过期的商铺信息        return r;    }    public <R, ID> R queryWithMutex(            String keyPrefix, ID id, Class<R> type, Function<ID, R> dbFallback, Long time, TimeUnit unit) {        String key = keyPrefix + id;        // 1.从redis查询商铺缓存        String shopJson = stringRedisTemplate.opsForValue().get(key);        // 2.判断是否存在        if (StrUtil.isNotBlank(shopJson)) {            // 3.存在，直接返回            return JSONUtil.toBean(shopJson, type);        }        // 判断命中的是否是空值        if (shopJson != null) {            // 返回一个错误信息            return null;        }        // 4.实现缓存重建        // 4.1.获取互斥锁        String lockKey = LOCK_SHOP_KEY + id;        R r = null;        try {            boolean isLock = tryLock(lockKey);            // 4.2.判断是否获取成功            if (!isLock) {                // 4.3.获取锁失败，休眠并重试                Thread.sleep(50);                return queryWithMutex(keyPrefix, id, type, dbFallback, time, unit);            }            // 4.4.获取锁成功，根据id查询数据库            r = dbFallback.apply(id);            // 5.不存在，返回错误            if (r == null) {                // 将空值写入redis                stringRedisTemplate.opsForValue().set(key, "", CACHE_NULL_TTL, TimeUnit.MINUTES);                // 返回错误信息                return null;            }            // 6.存在，写入redis            this.set(key, r, time, unit);        } catch (InterruptedException e) {            throw new RuntimeException(e);        }finally {            // 7.释放锁            unlock(lockKey);        }        // 8.返回        return r;    }    private boolean tryLock(String key) {        Boolean flag = stringRedisTemplate.opsForValue().setIfAbsent(key, "1", 10, TimeUnit.SECONDS);        return BooleanUtil.isTrue(flag);    }    private void unlock(String key) {        stringRedisTemplate.delete(key);    }}
-[/code]
+
+```java
+@Slf4j
+@Componentpublic
+class CacheClient {
+    private final StringRedisTemplate stringRedisTemplate;
+    private static final ExecutorService CACHE_REBUILD_EXECUTOR = Executors.newFixedThreadPool(10);
+    public CacheClient(StringRedisTemplate stringRedisTemplate) {
+        this.stringRedisTemplate = stringRedisTemplate;
+    }
+    public void set(String key, Object value, Long time, TimeUnit unit) {
+        stringRedisTemplate.opsForValue().set(key, JSONUtil.toJsonStr(value), time, unit);
+    }
+    public void setWithLogicalExpire(String key, Object value, Long time, TimeUnit unit) {
+        // 设置逻辑过期        RedisData redisData =
+        new RedisData();
+        redisData.setData(value);
+        redisData.setExpireTime(LocalDateTime.now().plusSeconds(unit.toSeconds(time)));
+        // 写入Redis
+        stringRedisTemplate.opsForValue().set(key, JSONUtil.toJsonStr(redisData));
+    }
+    public <R,ID> R queryWithPassThrough(            String keyPrefix, ID id, Class<R> type, Function<ID, R> dbFallback, Long time, TimeUnit unit){
+        String key = keyPrefix + id;
+        // 1.从redis查询商铺缓存
+        String json = stringRedisTemplate.opsForValue().get(key);
+        // 2.判断是否存在
+        if (StrUtil.isNotBlank(json)) {
+            // 3.存在，直接返回
+            return JSONUtil.toBean(json, type);
+        }
+        // 判断命中的是否是空值
+        if (json != null) {
+            // 返回一个错误信息
+            return null;
+        }
+        // 4.不存在，根据id查询数据库        R r =
+        dbFallback.apply(id);
+        // 5.不存在，返回错误
+        if (r == null) {
+            // 将空值写入redis
+            stringRedisTemplate.opsForValue().set(key, "", CACHE_NULL_TTL, TimeUnit.MINUTES);
+            // 返回错误信息
+            return null;
+        }
+        // 6.存在，写入redis
+        this.set(key, r, time, unit);
+        return r;
+    }
+    public <R, ID> R queryWithLogicalExpire(            String keyPrefix, ID id, Class<R> type, Function<ID, R> dbFallback, Long time, TimeUnit unit) {
+        String key = keyPrefix + id;
+        // 1.从redis查询商铺缓存
+        String json = stringRedisTemplate.opsForValue().get(key);
+        // 2.判断是否存在
+        if (StrUtil.isBlank(json)) {
+            // 3.存在，直接返回
+            return null;
+        }
+        // 4.命中，需要先把json反序列化为对象        RedisData redisData =
+        JSONUtil.toBean(json, RedisData.class);
+        R r = JSONUtil.toBean((JSONObject) redisData.getData(), type);
+        LocalDateTime expireTime = redisData.getExpireTime();
+        // 5.判断是否过期
+        if(expireTime.isAfter(LocalDateTime.now())) {
+            // 5.1.未过期，直接返回店铺信息
+            return r;
+        }
+        // 5.2.已过期，需要缓存重建        // 6.缓存重建        // 6.1.获取互斥锁
+        String lockKey = LOCK_SHOP_KEY + id;
+        boolean isLock = tryLock(lockKey);
+        // 6.2.判断是否获取锁成功
+        if (isLock){
+            // 6.3.成功，开启独立线程，实现缓存重建
+            CACHE_REBUILD_EXECUTOR.submit(() -> {                try {
+            // 查询数据库                    R newR =
+            dbFallback.apply(id);
+            // 重建缓存
+            this.setWithLogicalExpire(key, newR, time, unit);                } catch (Exception e) {                    throw new RuntimeException(e);                }finally {
+            // 释放锁                    unlock(lockKey);
+            }            });
+        }
+        // 6.4.返回过期的商铺信息
+        return r;
+    }
+    public <R, ID> R queryWithMutex(            String keyPrefix, ID id, Class<R> type, Function<ID, R> dbFallback, Long time, TimeUnit unit) {
+        String key = keyPrefix + id;
+        // 1.从redis查询商铺缓存
+        String shopJson = stringRedisTemplate.opsForValue().get(key);
+        // 2.判断是否存在
+        if (StrUtil.isNotBlank(shopJson)) {
+            // 3.存在，直接返回
+            return JSONUtil.toBean(shopJson, type);
+        }
+        // 判断命中的是否是空值
+        if (shopJson != null) {
+            // 返回一个错误信息
+            return null;
+        }
+        // 4.实现缓存重建        // 4.1.获取互斥锁
+        String lockKey = LOCK_SHOP_KEY + id;
+        R r = null;
+        try {
+            boolean isLock = tryLock(lockKey);
+            // 4.2.判断是否获取成功
+            if (!isLock) {
+                // 4.3.获取锁失败，休眠并重试
+                Thread.sleep(50);
+                return queryWithMutex(keyPrefix, id, type, dbFallback, time, unit);
+            }
+            // 4.4.获取锁成功，根据id查询数据库            r =
+            dbFallback.apply(id);
+            // 5.不存在，返回错误
+            if (r == null) {
+                // 将空值写入redis
+                stringRedisTemplate.opsForValue().set(key, "", CACHE_NULL_TTL, TimeUnit.MINUTES);
+                // 返回错误信息
+                return null;
+            }
+            // 6.存在，写入redis
+            this.set(key, r, time, unit);
+        }
+        catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+        finally {
+            // 7.释放锁            unlock(lockKey);
+        }
+        // 8.返回
+        return r;
+    }
+    private boolean tryLock(String key) {
+        Boolean flag = stringRedisTemplate.opsForValue().setIfAbsent(key, "1", 10, TimeUnit.SECONDS);
+        return BooleanUtil.isTrue(flag);
+    }
+    private void unlock(String key) {
+        stringRedisTemplate.delete(key);
+    }
+}
+```
 
 在ShopServiceImpl 中
-[code] 
-    @Resourceprivate CacheClient cacheClient; @Override    public Result queryById(Long id) {        // 解决缓存穿透        Shop shop = cacheClient                .queryWithPassThrough(CACHE_SHOP_KEY, id, Shop.class, this::getById, CACHE_SHOP_TTL, TimeUnit.MINUTES);        // 互斥锁解决缓存击穿        // Shop shop = cacheClient        //         .queryWithMutex(CACHE_SHOP_KEY, id, Shop.class, this::getById, CACHE_SHOP_TTL, TimeUnit.MINUTES);        // 逻辑过期解决缓存击穿        // Shop shop = cacheClient        //         .queryWithLogicalExpire(CACHE_SHOP_KEY, id, Shop.class, this::getById, 20L, TimeUnit.SECONDS);        if (shop == null) {            return Result.fail("店铺不存在！");        }        // 7.返回        return Result.ok(shop);    }
-[/code]
+
+```java
+@Resourceprivate
+CacheClient cacheClient;
+@Override
+public Result queryById(Long id) {
+    // 解决缓存穿透        Shop shop =
+    cacheClient                .queryWithPassThrough(CACHE_SHOP_KEY, id, Shop.class, this::getById, CACHE_SHOP_TTL, TimeUnit.MINUTES);
+    // 互斥锁解决缓存击穿        // Shop shop = cacheClient        //         .queryWithMutex(CACHE_SHOP_KEY, id, Shop.class, this::getById, CACHE_SHOP_TTL, TimeUnit.MINUTES);        // 逻辑过期解决缓存击穿        // Shop shop = cacheClient        //         .queryWithLogicalExpire(CACHE_SHOP_KEY, id, Shop.class, this::getById, 20L, TimeUnit.SECONDS);
+    if (shop == null) {
+        return Result.fail("店铺不存在！");
+    }
+    // 7.返回
+    return Result.ok(shop);
+}
+```

@@ -1,8 +1,13 @@
 ---
 title: "Servlet"
 date: 2023-12-02 00:00:00
-tags: []
-categories: []
+
+categories:
+  - JavaWeb
+tags:
+  - Servlet
+  - 生命周期
+  - JavaWeb
 ---
 
 # Servlet

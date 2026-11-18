@@ -1,8 +1,13 @@
 ---
 title: "MPP"
 date: 2024-09-03 00:00:00
-tags: []
-categories: []
+
+categories:
+  - 框架
+tags:
+  - MyBatis-Plus
+  - ORM
+  - SpringBoot
 ---
 
 ### MPplus
@@ -49,12 +54,17 @@ mbps支持各种复杂的where条件，可以满足日常开发的所有需求
 ![image-20240912225902277](https://wilsit-img.oss-cn-guangzhou.aliyuncs.com/img/image-20240912225902277.png)
 
 ![image-20240912231207273](https://wilsit-img.oss-cn-guangzhou.aliyuncs.com/img/image-20240912231207273.png)
-[code] 
-    QueryWrapper<User> wrapper = new QueryWrapper<>()                .select("id","username","info","balance")                .like("username","o")                .ge("balance",1000);        List<User> users = userMapper.selectList(wrapper);
-[/code]
-[code] 
-    User user = new User();QueryWrapper<User> wrapper = new QueryWrapper<>().eq("username","jack");userMapper.update(user,wrapper);
-[/code]
+
+```java
+QueryWrapper<User> wrapper = new QueryWrapper<>()                .select("id","username","info","balance")                .like("username","o")                .ge("balance",1000);
+List<User> users = userMapper.selectList(wrapper);
+```
+
+```java
+User user = new User();
+QueryWrapper<User> wrapper = new QueryWrapper<>().eq("username","jack");
+userMapper.update(user,wrapper);
+```
 
 ![image-20240912231944568](https://wilsit-img.oss-cn-guangzhou.aliyuncs.com/img/image-20240912231944568.png)
 

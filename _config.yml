@@ -45,14 +45,14 @@ relative_link: false
 future: true
 syntax_highlighter: highlight.js
 highlight:
-  line_number: true
+  line_number: false
   auto_detect: false
   tab_replace: ''
   wrap: true
   hljs: false
 prismjs:
   preprocess: true
-  line_number: true
+  line_number: false
   tab_replace: ''
 
 # Home page setting
@@ -96,7 +96,7 @@ ignore:
 # Extensions
 ## Plugins: https://hexo.io/plugins/
 ## Themes: https://hexo.io/themes/
-theme: butterfly
+theme: next
 
 # Deployment
 ## Docs: https://hexo.io/docs/one-command-deployment
@@ -104,3 +104,7 @@ deploy:
   type: git
   repo: git@github.com:Wislist/Wislist.github.io.git
   branch: main
+
+# 首页摘要截断长度（配合 scripts/auto-excerpt.js）
+# 超过该字数的文章，首页只显示摘要 + 「阅读全文」，全文见详情页
+excerpt_length: 200

@@ -1,0 +1,10 @@
+{# 移动端把 QQ 加好友链接换成 mqqapi 卡片协议（tencent:// 只有桌面 QQ 认） #}
+<script>
+  (function () {
+    var link = document.querySelector('a[href^="tencent://AddContact"]');
+    if (!link) return;
+    if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
+      link.href = 'mqqapi://card/show_pslcard?src_type=internal&version=1&uin=2929250563&card_type=person&source=sharecard';
+    }
+  })();
+</script>

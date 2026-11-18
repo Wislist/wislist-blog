@@ -1,8 +1,13 @@
 ---
 title: "Nacos"
 date: 2024-09-12 00:00:00
-tags: []
-categories: []
+
+categories:
+  - 中间件
+tags:
+  - Nacos
+  - 注册中心
+  - 微服务
 ---
 
 ### Nacos

@@ -1,8 +1,13 @@
 ---
 title: "RabbitMQ（DAY2）"
 date: 2024-09-03 00:00:00
-tags: []
-categories: []
+
+categories:
+  - 中间件
+tags:
+  - RabbitMQ
+  - 消息队列
+  - 交换机
 ---
 
 ### **RabbitMQ（DAY2）**
@@ -18,19 +23,39 @@ categories: []
 `spring AMQP`
 
 导入依赖maven
-[code] 
-    <dependency>           <groupId>org.springframework.boot</groupId>           <artifactId>spring-boot-starter-amqp</artifactId></dependency>
-[/code]
+
+```xml
+<dependency>
+    <groupId>
+        org.springframework.boot
+    </groupId>
+    <artifactId>
+        spring-boot-starter-amqp
+    </artifactId>
+</dependency>
+```
 
 写`publisherTests`类
-[code] 
-    @Autowired    private RabbitTemplate rabbitTemplate;    @Test    public void testSimpleQueue(){        String queueName = "simple.queue";        String message = "hello , rabbitmq!";        rabbitTemplate.convertAndSend(queueName,message);    }
-[/code]
+
+```java
+@Autowired
+private RabbitTemplate rabbitTemplate;
+@Test
+public void testSimpleQueue(){
+    String queueName = "simple.queue";
+    String message = "hello , rabbitmq!";
+    rabbitTemplate.convertAndSend(queueName,message);
+}
+```
 
 写`ConsumerMqListener`
-[code] 
-    @RabbitListener(queues = "simple.queue")    void listenSimpleQueue(String msg){        System.out.println("收到" + msg );    }
-[/code]
+
+```java
+@RabbitListener(queues
+= "simple.queue")    void listenSimpleQueue(String msg){
+    System.out.println("收到" + msg );
+}
+```
 
 使用`RabbitListener`注解 记得要将该类写入springbean环境进行管理 持久化注入@Component
 
@@ -39,9 +64,10 @@ categories: []
 默认情况，RabbitMq会将消息依次轮询投递给绑定在队列上的每一个消费者，这并没有考虑消费者是否处理完消息，会造成消息堆积。
 
 修改配置，确保同一时刻只能推送给消费者一个消息：
-[code] 
-    spring:  rabbitmq:    host: 106.53.212.49    port: 5672    virtual-host: /Demo    username: guest    password: guest    listener:      simple:        prefetch: 1  # 每次只能取一个消息
-[/code]
+
+```yml
+spring:  rabbitmq:    host: 106.53.212.49    port: 5672    virtual-host: /Demo    username: guest    password: guest    listener:      simple:        prefetch: 1  # 每次只能取一个消息
+```
 
 Work模型
 
@@ -95,14 +121,46 @@ SpringAMQP提供了解决方法
 
 
 ![image-20240904201931836](https://wilsit-img.oss-cn-guangzhou.aliyuncs.com/img/image-20240904201931836.png)
-[code] 
-    @Configurationpublic class FanoutConfiguration {    @Bean    public FanoutExchange fanoutExchange(){       // ExchangeBuilder.fanoutExchange("").build();        return new FanoutExchange("hmall.fanout2");    }    @Bean    public Queue fanoutQueue3() {        // QueueBuilder.durable("ff").build();        return new Queue("fanout.queue3");    }	//将队列3绑定到交换机    @Bean    public Binding fanoutBinding3(){        return BindingBuilder.bind(fanoutQueue3()).to(fanoutExchange());    }    @Bean    public Queue fanoutQueue4() {        // QueueBuilder.durable("ff").build();        return new Queue("fanout.queue4");    }    //将队列4绑定到交换机    @Bean    public Binding fanoutBinding4(){        return BindingBuilder.bind(fanoutQueue4()).to(fanoutExchange());    }
-[/code]
+
+```java
+@Configurationpublic
+class FanoutConfiguration {
+    @Bean
+    public FanoutExchange fanoutExchange(){
+        //
+        ExchangeBuilder.fanoutExchange("").build();
+        return new FanoutExchange("hmall.fanout2");
+    }
+    @Bean
+    public Queue fanoutQueue3() {
+        //
+        QueueBuilder.durable("ff").build();
+        return new Queue("fanout.queue3");
+    }
+    //将队列3绑定到交换机
+    @Bean
+    public Binding fanoutBinding3(){
+        return BindingBuilder.bind(fanoutQueue3()).to(fanoutExchange());
+    }
+    @Bean
+    public Queue fanoutQueue4() {
+        //
+        QueueBuilder.durable("ff").build();
+        return new Queue("fanout.queue4");
+    }
+    //将队列4绑定到交换机
+    @Bean
+    public Binding fanoutBinding4(){
+        return BindingBuilder.bind(fanoutQueue4()).to(fanoutExchange());
+    }
+```
 
 基于注解来来声明队列和交换机
-[code] 
-    @RabbitListener(bindings = @QueueBinding(            value = @Queue(name = "direct.queue1", durable = "ture"),            exchange = @Exchange(name = "hmall.direct", type = ExchangeTypes.DIRECT),            key = {"red","blue"}    ))
-[/code]
+
+```java
+@RabbitListener(bindings
+= @QueueBinding(            value = @Queue(name = "direct.queue1", durable = "ture"),            exchange = @Exchange(name = "hmall.direct", type = ExchangeTypes.DIRECT),            key = {"red","blue"}    ))
+```
 
 #### 消息转换器
 

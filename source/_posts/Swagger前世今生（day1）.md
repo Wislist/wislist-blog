@@ -1,8 +1,13 @@
 ---
 title: "Swagger前世今生"
 date: 2024-09-15 00:00:00
-tags: []
-categories: []
+
+categories:
+  - 框架
+tags:
+  - Swagger
+  - API文档
+  - SpringBoot
 ---
 
 ## Swagger前世今生
@@ -33,42 +38,194 @@ categories: []
 ### Springboot集成swagger
 
 1、导入依赖（springboot2.x版本 因为引入swagger要springfox 现在的springfox还并未支持spirngboot3）
-[code] 
-    <!-- https://mvnrepository.com/artifact/io.springfox/springfox-swagger2 --><dependency>    <groupId>io.springfox</groupId>    <artifactId>springfox-swagger2</artifactId>    <version>3.0.0</version></dependency>    <!-- https://mvnrepository.com/artifact/io.springfox/springfox-swagger-ui --><dependency>    <groupId>io.springfox</groupId>    <artifactId>springfox-swagger-ui</artifactId>    <version>3.0.0</version></dependency>
-[/code]
+
+```xml
+<!-- https://mvnrepository.com/artifact/io.springfox/springfox-swagger2 -->
+<dependency>
+    <groupId>
+        io.springfox
+    </groupId>
+    <artifactId>
+        springfox-swagger2
+    </artifactId>
+    <version>
+        3.0.0
+    </version>
+</dependency>
+<!-- https://mvnrepository.com/artifact/io.springfox/springfox-swagger-ui -->
+<dependency>
+    <groupId>
+        io.springfox
+    </groupId>
+    <artifactId>
+        springfox-swagger-ui
+    </artifactId>
+    <version>
+        3.0.0
+    </version>
+</dependency>
+```
 
 新版本(3.0)直接有starter
-[code] 
-    <dependency>    <groupId>io.springfox</groupId>    <artifactId>springfox-boot-starter</artifactId>    <version>3.0.0</version></dependency>
-[/code]
+
+```xml
+<dependency>
+    <groupId>
+        io.springfox
+    </groupId>
+    <artifactId>
+        springfox-boot-starter
+    </artifactId>
+    <version>
+        3.0.0
+    </version>
+</dependency>
+```
 
 针对springboot3和jdk17的依赖引入 使用替代openapi
-[code] 
-    <!-- openAPI包，替换 Swagger 的 SpringFox --> <dependency>     <groupId>org.springdoc</groupId>     <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>     <version>2.2.0</version> </dependency> <dependency>     <groupId>org.springframework.boot</groupId>     <artifactId>spring-boot-starter-web</artifactId> </dependency> <dependency>     <groupId>org.projectlombok</groupId>     <artifactId>lombok</artifactId>     <optional>true</optional> </dependency> <dependency>     <groupId>org.springframework.boot</groupId>     <artifactId>spring-boot-starter-test</artifactId>     <scope>test</scope> </dependency>
-[/code]
+
+```xml
+<!-- openAPI包，替换 Swagger 的 SpringFox -->
+<dependency>
+    <groupId>
+        org.springdoc
+    </groupId>
+    <artifactId>
+        springdoc-openapi-starter-webmvc-ui
+    </artifactId>
+    <version>
+        2.2.0
+    </version>
+</dependency>
+<dependency>
+    <groupId>
+        org.springframework.boot
+    </groupId>
+    <artifactId>
+        spring-boot-starter-web
+    </artifactId>
+</dependency>
+<dependency>
+    <groupId>
+        org.projectlombok
+    </groupId>
+    <artifactId>
+        lombok
+    </artifactId>
+    <optional>
+        true
+    </optional>
+</dependency>
+<dependency>
+    <groupId>
+        org.springframework.boot
+    </groupId>
+    <artifactId>
+        spring-boot-starter-test
+    </artifactId>
+    <scope>
+        test
+    </scope>
+</dependency>
+```
 
 2、创建一个测试项目
 
   * controller
 
 
-[code] 
-    package com.wislist.demo.controller;import com.wislist.demo.config.swaggerconfig;import com.wislist.demo.model.SwaggerApiModel;import io.swagger.v3.oas.annotations.Hidden;import io.swagger.v3.oas.annotations.Operation;import io.swagger.v3.oas.annotations.Parameter;import io.swagger.v3.oas.annotations.Parameters;import io.swagger.v3.oas.annotations.responses.ApiResponse;import io.swagger.v3.oas.annotations.responses.ApiResponses;import io.swagger.v3.oas.annotations.tags.Tag;import org.springframework.web.bind.annotation.*;/** * @author: zjl * @datetime: 2024/3/26 * @desc: */@Tag(name = "控制器：测试Swagger3", description = "描述：测试Swagger3")@RestControllerpublic class SwaggerController {    @Operation(summary = "测试Swagger3注解方法Get")    @Parameters({@Parameter(name = "id",description = "编码"),            @Parameter(name = "headerValue",description = "header传送内容")})    @ApiResponses({            @ApiResponse(responseCode = "200", description = "请求成功"),            @ApiResponse(responseCode = "400", description = "请求参数没填好"),            @ApiResponse(responseCode = "401", description = "没有权限"),            @ApiResponse(responseCode = "403", description = "禁止访问"),            @ApiResponse(responseCode = "404", description = "请求路径没有或页面跳转路径不对")    })    @GetMapping(value = "/swagger/student")    public Object getStudent(@RequestParam @Parameter(example = "2")  String id,                             @RequestHeader @Parameter(example = "2") String headerValue){        return id;    }    @Operation(summary = "测试Swagger3注解方法Post")    @ApiResponses({            @ApiResponse(responseCode = "200", description = "请求成功"),            @ApiResponse(responseCode = "400", description = "请求参数没填好"),            @ApiResponse(responseCode = "401", description = "没有权限"),            @ApiResponse(responseCode = "403", description = "禁止访问"),            @ApiResponse(responseCode = "404", description = "请求路径没有或页面跳转路径不对")    })    @PostMapping(value = "/swagger/student", produces = "application/json")    public SwaggerApiModel updateStudent(@RequestBody SwaggerApiModel model){        return model;    }    /**     * swagger 不暴漏该 api，通过@Hidden隐藏     * 但是仍然可以访问     * @return     */    @Hidden    @GetMapping(value = "/swagger/hiddenApi")    public String hiddenApi(){        return "hiddenApi";    }    /**     * swagger 暴漏该 api，没有配置@Hidden会展示     * @return     */    @GetMapping(value = "/swagger/noHiddenApi")    public String noHiddenApi(){        return "noHiddenApi";    }}
-[/code]
+```java
+package com.wislist.demo.controller;
+import com.wislist.demo.config.swaggerconfig;
+import com.wislist.demo.model.SwaggerApiModel;
+import io.swagger.v3.oas.annotations.Hidden;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.Parameters;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springframework.web.bind.annotation.*;
+/** * @author: zjl * @datetime: 2024/3/26 * @desc: */
+@Tag(name
+= "控制器：测试Swagger3", description = "描述：测试Swagger3")
+@RestControllerpublic
+class SwaggerController {
+    @Operation(summary
+    = "测试Swagger3注解方法Get")
+    @Parameters({@Parameter(name
+    = "id",description = "编码"),            @Parameter(name = "headerValue",description = "header传送内容")})
+    @ApiResponses({            @ApiResponse(responseCode
+    = "200", description = "请求成功"),            @ApiResponse(responseCode = "400", description = "请求参数没填好"),            @ApiResponse(responseCode = "401", description = "没有权限"),            @ApiResponse(responseCode = "403", description = "禁止访问"),            @ApiResponse(responseCode = "404", description = "请求路径没有或页面跳转路径不对")    })
+    @GetMapping(value
+    = "/swagger/student")    public Object getStudent(@RequestParam @Parameter(example = "2")  String id,                             @RequestHeader @Parameter(example = "2") String headerValue){
+        return id;
+    }
+    @Operation(summary
+    = "测试Swagger3注解方法Post")
+    @ApiResponses({            @ApiResponse(responseCode
+    = "200", description = "请求成功"),            @ApiResponse(responseCode = "400", description = "请求参数没填好"),            @ApiResponse(responseCode = "401", description = "没有权限"),            @ApiResponse(responseCode = "403", description = "禁止访问"),            @ApiResponse(responseCode = "404", description = "请求路径没有或页面跳转路径不对")    })
+    @PostMapping(value
+    = "/swagger/student", produces = "application/json")    public SwaggerApiModel updateStudent(@RequestBody SwaggerApiModel model){
+        return model;
+    }
+    /**     * swagger 不暴漏该 api，通过@Hidden隐藏     * 但是仍然可以访问     * @return     */
+    @Hidden
+    @GetMapping(value
+    = "/swagger/hiddenApi")    public String hiddenApi(){
+        return "hiddenApi";
+    }
+    /**     * swagger 暴漏该 api，没有配置@Hidden会展示     * @return     */
+    @GetMapping(value
+    = "/swagger/noHiddenApi")    public String noHiddenApi(){
+        return "noHiddenApi";
+    }
+}
+```
 
   * config
 
 
-[code] 
-    package com.wislist.demo.config;import io.swagger.v3.oas.models.ExternalDocumentation;import io.swagger.v3.oas.models.OpenAPI;import io.swagger.v3.oas.models.info.Info;import org.springframework.context.annotation.Bean;import org.springframework.context.annotation.Configuration;import java.util.ArrayList;/** * @Author: Wislist * @Description: TODO * @Date: 2024/9/17 10:48 * @Version: 1.0 */@Configurationpublic class swaggerconfig {    @Bean    public OpenAPI openAPI() {        return new OpenAPI()                .info(new Info()                        .title("接口文档标题")                        .description("SpringBoot3 集成 Swagger3接口文档")                        .version("v1"))                .externalDocs(new ExternalDocumentation()                        .description("项目API文档")                        .url("/"));    }}
-[/code]
+```java
+package com.wislist.demo.config;
+import io.swagger.v3.oas.models.ExternalDocumentation;
+import io.swagger.v3.oas.models.OpenAPI;
+import io.swagger.v3.oas.models.info.Info;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import java.util.ArrayList;
+/** * @Author: Wislist * @Description: TODO * @Date: 2024/9/17 10:48 * @Version: 1.0 */
+@Configurationpublic
+class swaggerconfig {
+    @Bean
+    public OpenAPI openAPI() {
+        return new OpenAPI()                .info(new Info()                        .title("接口文档标题")                        .description("SpringBoot3 集成 Swagger3接口文档")                        .version("v1"))                .externalDocs(new ExternalDocumentation()                        .description("项目API文档")                        .url("/"));
+    }
+}
+```
 
   * model
 
 
-[code] 
-    package com.wislist.demo.model;import io.swagger.v3.oas.annotations.media.Schema;import lombok.Data;import java.io.Serializable;/** * @Author: Wislist * @Description: TODO * @Date: 2024/9/17 11:23 * @Version: 1.0 */@Data@Schema(description= "学生信息")public class SwaggerApiModel implements Serializable {    @Schema(description = "主键ID", required = true, example = "1")    private Long id;    @Schema(description = "手机号", required = true)    private String phonenum;    @Schema(description = "密码", required = true)    private String password;    @Schema(description = "年龄", required = true)    private Integer age;}
-[/code]
+```java
+package com.wislist.demo.model;
+import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.Data;
+import java.io.Serializable;
+/** * @Author: Wislist * @Description: TODO * @Date: 2024/9/17 11:23 * @Version: 1.0 */
+@Data
+@Schema(description=
+"学生信息")public class SwaggerApiModel implements Serializable {
+    @Schema(description
+    = "主键ID", required = true, example = "1")    private Long id;
+    @Schema(description
+    = "手机号", required = true)    private String phonenum;
+    @Schema(description
+    = "密码", required = true)    private String password;
+    @Schema(description
+    = "年龄", required = true)    private Integer age;
+}
+```
 
 启动spring项目
 

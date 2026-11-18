@@ -1,8 +1,13 @@
 ---
 title: "傻瓜都会用的ssh连接（就用vscode）"
 date: 2024-09-01 00:00:00
-tags: []
-categories: []
+
+categories:
+  - 运维工具
+tags:
+  - SSH
+  - VSCode
+  - 远程开发
 ---
 
 ### **傻瓜都会的ssh连接服务器**

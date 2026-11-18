@@ -1,8 +1,13 @@
 ---
 title: "Dobbo(Day1)"
 date: 2024-09-07 00:00:00
-tags: []
-categories: []
+
+categories:
+  - 中间件
+tags:
+  - Dubbo
+  - RPC
+  - 分布式
 ---
 
 ## Dobbo(Day1)
@@ -42,16 +47,17 @@ RPC两大核心：通信 序列化
 #### Zookeeper注册中心
 
 使用docker拉取镜像
-[code] 
-    # 检索ZooKeeper 镜像docker search zookeeper# 拉取ZooKeeper镜像最新版本docker pull zookeeper:latest# 我使用的版本docker pull zookeeper:3.5.7
-[/code]
+
+```shell
+# 检索ZooKeeper 镜像docker search zookeeper# 拉取ZooKeeper镜像最新版本docker pull zookeeper:latest# 我使用的版本docker pull zookeeper:3.5.7
+```
 
   * 启动容器
 
 
-[code] 
-    docker run -d --name zookeeper --privileged=true -p 2181:2181  -v /mydata/zookeeper/data:/data -v /mydata/zookeeper/conf:/conf -v /mydata/zookeeper/logs:/datalog zookeeper:3.5.7
-[/code]
+```shell
+docker run -d --name zookeeper --privileged=true -p 2181:2181  -v /mydata/zookeeper/data:/data -v /mydata/zookeeper/conf:/conf -v /mydata/zookeeper/logs:/datalog zookeeper:3.5.7
+```
 
 参数说明
 
@@ -65,16 +71,17 @@ RPC两大核心：通信 序列化
   * 检验测试
 
 
-[code] 
-    docker exec -it zookeeper zkCli.sh
-[/code]
+```shell
+docker exec -it zookeeper zkCli.sh
+```
 
 进入zkCli客户端来查看是否启动
 
 #### dobbo-admin安装
-[code]
-    docker run -d \	--name dubbo-admin \	--net zookeeper \	-v background:/data \	-p 7001:8080 \	-e DUBBO_REGISTRY="zookeeper:\/\/ip:port" \	-e DUBBO_ROOT_PASSWORD=root \	-e DUBBO_GUEST_PASSWORD=guest \	--restart=always \	apache/dubbo-admin
-[/code]
+
+```shell
+docker run -d \	--name dubbo-admin \	--net zookeeper \	-v background:/data \	-p 7001:8080 \	-e DUBBO_REGISTRY="zookeeper:\/\/ip:port" \	-e DUBBO_ROOT_PASSWORD=root \	-e DUBBO_GUEST_PASSWORD=guest \	--restart=always \	apache/dubbo-admin
+```
 
 缺点：配置网络桥接（容器与容器间的通信）
 

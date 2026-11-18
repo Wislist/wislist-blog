@@ -1,8 +1,13 @@
 ---
 title: "Redis基本本应用(集群)"
 date: 2024-08-29 00:00:00
-tags: []
-categories: []
+
+categories:
+  - 数据库
+tags:
+  - Redis
+  - 哨兵
+  - 集群
 ---
 
 ### Redis学习（DAY3）
@@ -16,18 +21,20 @@ categories: []
 **RDB**
 
 就是第一种方式
-[code] 
-    save-- 注意上面这个命令是直接保存，会占用一定的时间，也可以单独开一个子进程后台执行保存bgsave-- 后台执行
-[/code]
+
+```
+save-- 注意上面这个命令是直接保存，会占用一定的时间，也可以单独开一个子进程后台执行保存bgsave-- 后台执行
+```
 
 执行之后会生成一个`dump.rdb`文件，当重启服务器后，会自动加载内容到对应的数据库中
 
 ![image-20240831154021335](https://wilsit-img.oss-cn-guangzhou.aliyuncs.com/img/image-20240831154021335.png)
 
 方便 如果数据库数据量较大，会花费大量的时间，我们可以每隔一段时间进行保存
-[code] 
-    save 300 10 # 300秒（5分钟）内有10个写入save 60 10000 # 60秒（1分钟）内有10000个写入
-[/code]
+
+```
+save 300 10 # 300秒（5分钟）内有10个写入save 60 10000 # 60秒（1分钟）内有10000个写入
+```
 
 **AOF**
 
@@ -40,30 +47,33 @@ categories: []
   * no：看系统心情保存
 
 
-[code] 
-    # 注意得改成也是appendonly yes# appendfsync alwaysappendfsync everysec# appendfsync no
-[/code]
+```
+# 注意得改成也是appendonly yes# appendfsync alwaysappendfsync everysec# appendfsync no
+```
 
 服务器目录会多一个`appendonly.aof`文件
 
 其缺点就是写的越多，重启耗费的时间越多
 
 Redis提供了优化策略：
-[code] 
-    lpush test 666lpush test 777lpush test 888
-[/code]
+
+```
+lpush test 666lpush test 777lpush test 888
+```
 
 我们只有能保证最终结果和重演的一样就行了，无论你当时写的一些无效语句不必记录，就可以大大压缩空间和时间
 
 也可以手动执行操作
-[code] 
-    bgrewriteaof
-[/code]
+
+```
+bgrewriteaof
+```
 
 或者在配置里设置自动重写
-[code] 
-    # 百分比计算，这里不多介绍auto-aof-rewrite-percentage 100# 当达到这个大小时，触发自动重写auto-aof-rewrite-min-size 64mb
-[/code]
+
+```
+# 百分比计算，这里不多介绍auto-aof-rewrite-percentage 100# 当达到这个大小时，触发自动重写auto-aof-rewrite-min-size 64mb
+```
 
 #### Redis多级缓存
 
@@ -92,9 +102,10 @@ Mybatis的默认二级缓存只能是单机的，如果存在多台服务器访�
 依次启动主从节点
 
 从节点配置需要修改指向主节点
-[code] 
-    slaveof 127.0.0.1 6001
-[/code]
+
+```
+slaveof 127.0.0.1 6001
+```
 
 最后启动哨兵
 

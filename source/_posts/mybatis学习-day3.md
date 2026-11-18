@@ -1,8 +1,13 @@
 ---
 title: "mybatis学习笔记（day3）"
 date: 2023-12-21 00:00:00
-tags: []
-categories: []
+
+categories:
+  - 框架
+tags:
+  - MyBatis
+  - 配置
+  - 映射
 ---
 
 # mybatis学习(day3)
@@ -31,23 +36,65 @@ SqlMapConfig.xml中配置的内容和顺序如下
 将数据库连接参数单独配置在db.properties中，只需要在SqlMapConfig.xml中加载db.properties的属性值。在SqlMapConfig.xml中就不需要对数据库连接参数硬编码。
 
 将数据库连接参数只配置在db.properties中。原因：方便对参数进行统一管理，**其它xml可以引用该db.properties** 。
-[code] 
-    jdbc.driver=com.mysql.jdbc.Driverjdbc.url=jdbc:mysql://120.25.162.238:3306/mybatis001?characterEncoding=utf-8jdbc.username=rootjdbc.password=123
-[/code]
+
+```properties
+jdbc.driver=com.mysql.jdbc.Driverjdbc.url=jdbc:mysql://120.25.162.238:3306/mybatis001?characterEncoding=utf-8jdbc.username=rootjdbc.password=123
+```
 
 在sqlMapConfig.xml加载属性文件：
 
 就可以更改为：
-[code] 
-    <?xml version="1.0" encoding="UTF-8" ?><!DOCTYPE configuration        PUBLIC "-//mybatis.org//DTD Config 3.0//EN"        "http://mybatis.org/dtd/mybatis-3-config.dtd"><configuration>    <!-- 和spring整合后 environments配置将废除-->    <environments default="development">        <environment id="development">            <!-- 使用jdbc事务管理，事务控制由mybatis-->            <transactionManager type="JDBC" />            <!-- 数据库连接池,由mybatis管理-->            <dataSource type="POOLED">                <property name="driver" value="com.mysql.cj.jdbc.Driver" />                <property name="url" value="jdbc:mysql://localhost:3306/users?characterEncoding=utf-8" />                <property name="username" value="root" />                <property name="password" value="root" />            </dataSource>        </environment>    </environments>    <!-- 加载映射文件-->    <mappers>        <mapper resource="Mapper/User.xml"/>        <mapper resource="Mapper/UserMapper.xml"/>    </mappers></configuration>
-[/code]
+
+```xml
+<?xml version="1.0" encoding="UTF-8" ?>
+    <!DOCTYPE configuration        PUBLIC "-//mybatis.org//DTD Config 3.0//EN"        "http://mybatis.org/dtd/mybatis-3-config.dtd">
+    <configuration>
+        <!-- 和spring整合后 environments配置将废除-->
+        <environments default="development">
+            <environment id="development">
+                <!-- 使用jdbc事务管理，事务控制由mybatis-->
+                <transactionManager type="JDBC" />
+                <!-- 数据库连接池,由mybatis管理-->
+                <dataSource type="POOLED">
+                    <property name="driver" value="com.mysql.cj.jdbc.Driver" />
+                    <property name="url" value="jdbc:mysql://localhost:3306/users?characterEncoding=utf-8" />
+                    <property name="username" value="root" />
+                    <property name="password" value="root" />
+                </dataSource>
+            </environment>
+        </environments>
+        <!-- 加载映射文件-->
+        <mappers>
+            <mapper resource="Mapper/User.xml"/>
+            <mapper resource="Mapper/UserMapper.xml"/>
+        </mappers>
+    </configuration>
+```
 
 可以在environments 前加入 properties
 
 `<properties resource="db.properties"> <!--properties中还可以配置一些属性名和属性值 --> <!-- <property name="jdbc.driver" value=""/> --> </properties>`
-[code] 
-    <properties resource="db.properties">        <!--properties中还可以配置一些属性名和属性值  -->        <!-- <property name="jdbc.driver" value=""/> --></properties><!-- 和spring整合后 environments配置将废除--><environments default="development">    <environment id="development">        <!-- 使用jdbc事务管理，事务控制由mybatis-->        <transactionManager type="JDBC" />        <!-- 数据库连接池,由mybatis管理-->        <dataSource type="POOLED">            <property name="driver" value="${jdbc.driver}" />            <property name="url" value="${jdbc.url}" />            <property name="username" value="${jdbc.username}" />            <property name="password" value="${jdbc.password}" />        </dataSource>    </environment></environments>
-[/code]
+
+```xml
+<properties resource="db.properties">
+    <!--properties中还可以配置一些属性名和属性值  -->
+    <!-- <property name="jdbc.driver" value=""/> -->
+</properties>
+<!-- 和spring整合后 environments配置将废除-->
+<environments default="development">
+    <environment id="development">
+        <!-- 使用jdbc事务管理，事务控制由mybatis-->
+        <transactionManager type="JDBC" />
+        <!-- 数据库连接池,由mybatis管理-->
+        <dataSource type="POOLED">
+            <property name="driver" value="${jdbc.driver}" />
+            <property name="url" value="${jdbc.url}" />
+            <property name="username" value="${jdbc.username}" />
+            <property name="password" value="${jdbc.password}" />
+        </dataSource>
+    </environment>
+</environments>
+```
 
 注意： MyBatis 将按照下面的顺序(优先级)来加载属性：
 
@@ -86,16 +133,25 @@ mybatis框架在运行时可以调整一些运行参数,比如：开启二级缓
     * 批量定义别名（常用）
 
 
-[code] 
-    <!-- 别名定义 --><typeAliases>    <!-- 针对单个别名定义    type：类型的路径    alias：别名     -->    <!-- <typeAlias type="cn.itcast.mybatis.po.User" alias="user"/> -->    <!-- 批量别名定义    指定包名，mybatis自动扫描包中的po类，自动定义别名，别名就是类名（首字母大写或小写都可以）    -->    <package name="com.iot.mybatis.po"/></typeAliases>
-[/code]
+```xml
+<!-- 别名定义 -->
+<typeAliases>
+    <!-- 针对单个别名定义    type：类型的路径    alias：别名     -->
+    <!-- <typeAlias type="cn.itcast.mybatis.po.User" alias="user"/> -->
+    <!-- 批量别名定义    指定包名，mybatis自动扫描包中的po类，自动定义别名，别名就是类名（首字母大写或小写都可以）    -->
+    <package name="com.iot.mybatis.po"/>
+</typeAliases>
+```
 
 ## typeHandlers(类型处理器)
 
 mybatis中通过typeHandlers完成jdbc类型和java类型的转换。例如：
-[code] 
-    <select id="findUserById" parameterType="int" resultType="user">		select * from user where id = #{id}</select>
-[/code]
+
+```sql
+<select id="findUserById" parameterType="int" resultType="user">
+    select * from user where id = #{id}
+</select>
+```
 
 mybatis自带的类型处理器基本上满足日常需求，不需要单独定义。
 
@@ -108,25 +164,28 @@ mybatis自带的类型处理器基本上满足日常需求，不需要单独定�
   * 通过resource加载单个映射文件
 
 
-[code] 
-    <!--通过resource方法一次加载一个映射文件 --><mapper resource="mapper/UserMapper.xml"/>
-[/code]
+```xml
+<!--通过resource方法一次加载一个映射文件 --><mapper resource="mapper/UserMapper.xml"/>
+```
 
   * 通过mapper接口加载单个mapper
 
 
-[code] 
-     <!-- 通过mapper接口加载单个 映射文件        遵循一些规范：需要将mapper接口类名和mapper.xml映射文件名称保持一致，且在一个目录中        上边规范的前提是：使用的是mapper代理方法         --><mapper class="com.iot.mybatis.mapper.UserMapper"/> 
-[/code]
+```xml
+<!-- 通过mapper接口加载单个 映射文件        遵循一些规范：需要将mapper接口类名和mapper.xml映射文件名称保持一致，且在一个目录中        上边规范的前提是：使用的是mapper代理方法         -->
+<mapper class="com.iot.mybatis.mapper.UserMapper"/>
+```
 
 目录示例
-[code] 
-    com.iot.mybatis.mapper------------------package包           |----UserMapper.java           |----UserMapper.xml              
-[/code]
+
+```
+com.iot.mybatis.mapper------------------package包           |----UserMapper.java           |----UserMapper.xml
+```
 
   * 批量加载mapper(推荐使用)
 
 
-[code] 
-    <!-- 批量加载mapper		指定mapper接口的包名，mybatis自动扫描包下边所有mapper接口进行加载		遵循一些规范：需要将mapper接口类名和mapper.xml映射文件名称保持一致，且在一个目录 中		上边规范的前提是：使用的是mapper代理方法		 --><package name="com.iot.mybatis.mapper"/>
-[/code]
+```xml
+<!-- 批量加载mapper		指定mapper接口的包名，mybatis自动扫描包下边所有mapper接口进行加载		遵循一些规范：需要将mapper接口类名和mapper.xml映射文件名称保持一致，且在一个目录 中		上边规范的前提是：使用的是mapper代理方法		 -->
+<package name="com.iot.mybatis.mapper"/>
+```

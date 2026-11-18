@@ -1,8 +1,13 @@
 ---
 title: "mybatis学习笔记（day4）"
 date: 2023-12-21 00:00:00
-tags: []
-categories: []
+
+categories:
+  - 框架
+tags:
+  - MyBatis
+  - 输入映射
+  - 参数
 ---
 
 # mybatis学习(day4)
@@ -18,51 +23,87 @@ categories: []
 
 昨天已经解释过parameterType是什么了  
 例如：
-[code] 
-    <delete id="deleteStudent" parameterType="int"> delete from student where id=#{studentId}</delete>
-[/code]
+
+```sql
+<delete id="deleteStudent" parameterType="int">
+    delete from student where id=#{studentId}
+</delete>
+```
 
 中的 parameterType 是来指定字段类型的
 
 ## 传递pojo的包装对象
 
   * 定义包装类型pojo
-[code] package com.iot.mybatis.po;public class UserQueryVo {    //在这里包装所需要的查询条件    //用户查询条件    private UserCustom userCustom;    public UserCustom getUserCustom() {        return userCustom;    }    public void setUserCustom(UserCustom userCustom) {        this.userCustom = userCustom;    }    //可以包装其它的查询条件，订单、商品    //....}
-[/code]
+
+```java
+package com.iot.mybatis.po;
+public class UserQueryVo {
+    //在这里包装所需要的查询条件    //用户查询条件
+    private UserCustom userCustom;
+    public UserCustom getUserCustom() {
+        return userCustom;
+    }
+    public void setUserCustom(UserCustom userCustom) {
+        this.userCustom = userCustom;
+    }
+//可以包装其它的查询条件，订单、商品    //....}
+```
 
 其中，UserCustom类继承User
 
 
-[code] 
-    public class UserCustom extends User{}
-[/code]
+```java
+public class UserCustom extends User{}
+```
 
   * mapper.xml
 
 
 在UserMapper.xml中定义用户信息综合查询（查询条件复杂，通过高级查询进行复杂关联查询）。
-[code] 
-    <!-- 用户信息综合查询    #{userCustom.sex}:取出pojo包装对象中性别值    ${userCustom.username}：取出pojo包装对象中用户名称 --><select id="findUserList" parameterType="com.iot.mybatis.po.UserQueryVo"        resultType="com.iot.mybatis.po.UserCustom">    SELECT * FROM user WHERE user.sex=#{userCustom.sex} AND user.username LIKE '%${userCustom.username}%'</select>
-[/code]
+
+```sql
+<!-- 用户信息综合查询    #{userCustom.sex}:取出pojo包装对象中性别值    ${userCustom.username}：取出pojo包装对象中用户名称 -->
+<select id="findUserList" parameterType="com.iot.mybatis.po.UserQueryVo"        resultType="com.iot.mybatis.po.UserCustom">
+    SELECT * FROM user WHERE user.sex=#{userCustom.sex} AND user.username LIKE '%${userCustom.username}%'
+</select>
+```
 
 注意不要将`#{userCustom.sex}`中的`userCustom`写成`UserCustom`,前者指属性名(由于使用IDE提示自动补全，所以只是把类型名首字母小写了)，后者指类型名，这里是`UserQueryVo`类中的`userCustom`属性，是**属性名** 。写错会报如下异常：
-[code] 
-    org.apache.ibatis.exceptions.PersistenceException: ### Error querying database.  Cause: org.apache.ibatis.reflection.ReflectionException: There is no getter for property named 'UserCustom' in 'class com.iot.mybatis.po.UserQueryVo'### Cause: org.apache.ibatis.reflection.ReflectionException: There is no getter for property named 'UserCustom' in 'class com.iot.mybatis.po.UserQueryVo'
-[/code]
+
+```yml
+org.apache.ibatis.exceptions.PersistenceException: ### Error querying database.  Cause: org.apache.ibatis.reflection.ReflectionException: There is no getter for property named 'UserCustom' in 'class com.iot.mybatis.po.UserQueryVo'### Cause: org.apache.ibatis.reflection.ReflectionException: There is no getter for property named 'UserCustom' in 'class com.iot.mybatis.po.UserQueryVo'
+```
 
   * mapper.java
 
 
-[code] 
-    //用户信息综合查询public List<UserCustom> findUserList(UserQueryVo userQueryVo) throws Exception;
-[/code]
+```java
+//用户信息综合查询public List<UserCustom> findUserList(UserQueryVo userQueryVo) throws Exception;
+```
 
   * 测试代码
 
 
-[code] 
-    //用户信息的综合 查询	@Test	public void testFindUserList() throws Exception {		SqlSession sqlSession = sqlSessionFactory.openSession();		//创建UserMapper对象，mybatis自动生成mapper代理对象		UserMapper userMapper  = sqlSession.getMapper(UserMapper.class);		//创建包装对象，设置查询条件		UserQueryVo userQueryVo = new UserQueryVo();		UserCustom userCustom = new UserCustom();		//由于这里使用动态sql，如果不设置某个值，条件不会拼接在sql中		userCustom.setSex("1");		userCustom.setUsername("张三");		userQueryVo.setUserCustom(userCustom);		//调用userMapper的方法		List<UserCustom> list = userMapper.findUserList(userQueryVo);		System.out.println(list);	}
-[/code]
+```java
+//用户信息的综合 查询
+@Test
+public void testFindUserList() throws Exception {
+    SqlSession sqlSession = sqlSessionFactory.openSession();
+    //创建UserMapper对象，mybatis自动生成mapper代理对象		UserMapper userMapper  =
+    sqlSession.getMapper(UserMapper.class);
+    //创建包装对象，设置查询条件		UserQueryVo userQueryVo =
+    new UserQueryVo();
+    UserCustom userCustom = new UserCustom();
+    //由于这里使用动态sql，如果不设置某个值，条件不会拼接在sql中
+    userCustom.setSex("1");
+    userCustom.setUsername("张三");
+    userQueryVo.setUserCustom(userCustom);
+    //调用userMapper的方法		List<UserCustom> list =
+    userMapper.findUserList(userQueryVo);
+    System.out.println(list);
+}
+```
 
 ## 补充
 
@@ -76,19 +117,35 @@ mapper 文件 select * from student where name = #{ personName}
 #### **接口方法：**
 
 @Param注释写在mapper接口里
-[code] 
-    /**    * 多个参数：命名参数，在形参定义的前面加入@Param("自定义参数名称")    */   public List<Student> selectMultiParam(@Param("myname") String name, @Param("myage") Integer age);
-[/code]
+
+```java
+/**    * 多个参数：命名参数，在形参定义的前面加入@Param("自定义参数名称")    */
+public List<Student> selectMultiParam(@Param("myname") String name, @Param("myage") Integer age);
+```
 
 #### **mapper 文件：**
-[code]
-    <!--多个参数，使用@Param命名-->   <select id="selectMultiParam" resultType="com.zep.domain.Student">       select * from student where name=#{myname} or age=#{myage}   </select>
-[/code]
+
+```sql
+<!--多个参数，使用@Param命名-->
+<select id="selectMultiParam" resultType="com.zep.domain.Student">
+    select * from student where name=#{myname} or age=#{myage}
+</select>
+```
 
 #### **测试方法：**
-[code]
-    @Test   public void testSelectMultiParam() {       SqlSession sqlSession = MybatisUtils.getSqlSession();       StudentDao dao = sqlSession.getMapper(StudentDao.class);       List<Student> students = dao.selectMultiParam("李四", 20);       for (Student student : students) {           System.out.println("学生=" + student);       }       sqlSession.close();   }
-[/code]
+
+```java
+@Test
+public void testSelectMultiParam() {
+    SqlSession sqlSession = MybatisUtils.getSqlSession();
+    StudentDao dao = sqlSession.getMapper(StudentDao.class);
+    List<Student> students = dao.selectMultiParam("李四", 20);
+    for (Student student : students) {
+        System.out.println("学生=" + student);
+    }
+    sqlSession.close();
+}
+```
 
 ![image-20231221111602942](https://wilsit-img.oss-cn-guangzhou.aliyuncs.com/img/image-20231221111602942.png)
 

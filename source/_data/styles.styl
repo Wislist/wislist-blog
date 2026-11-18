@@ -1,0 +1,24 @@
+// ===============================================================
+// 自定义样式
+// ===============================================================
+
+// 长代码行自动换行
+// 原因：文章里的代码多数是 Notion 导出时被压成一行（63% 超过 120 字符），
+// 不换行的话要么被裁掉，要么必须横向滚动才能看。
+figure.highlight
+  pre
+    white-space pre-wrap
+    word-break break-all
+    overflow-x auto
+
+// 暗色下复制按钮默认是浅灰渐变，压在换行后的代码上像块白斑
+@media (prefers-color-scheme: dark)
+  .copy-btn
+    background none
+    background-color rgba(255, 255, 255, .12)
+    border 1px solid rgba(255, 255, 255, .18)
+    border-radius 3px
+    color var(--highlight-foreground)
+
+  .copy-btn:hover
+    background-color rgba(255, 255, 255, .22)

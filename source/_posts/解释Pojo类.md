@@ -1,8 +1,14 @@
 ---
 title: "解释Pojo类以及javabean"
 date: 2023-12-22 00:00:00
-tags: []
-categories: []
+
+categories:
+  - Java基础
+tags:
+  - Java
+  - POJO
+  - JavaBean
+  - 反射
 ---
 
 # 解释Pojo类
@@ -19,9 +25,24 @@ POJO具有以下特点：
   * ➍ 不依赖于任何第三方框架（库）
 
 
-[code] 
-    public class EmployeePojo➊ {      public String➋ firstName;    public String➋ lastName;    private LocalDate➋ startDate;      public EmployeePojo(String firstName, String lastName, LocalDate startDate) {        this.firstName = firstName;        this.lastName = lastName;        this.startDate = startDate;    }      public String name()➍ {        return this.firstName + " " + this.lastName;    }      public LocalDate getStart()➍ {        return this.startDate;    }}
-[/code]
+```java
+public class EmployeePojo➊ {
+    public String➋ firstName;
+    public String➋ lastName;
+    private LocalDate➋ startDate;
+    public EmployeePojo(String firstName, String lastName, LocalDate startDate) {
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.startDate = startDate;
+    }
+    public String name()➍ {
+        return this.firstName + " " + this.lastName;
+    }
+    public LocalDate getStart()➍ {
+        return this.startDate;
+    }
+}
+```
 
   * ➊ 无继承、无实现
   * ➋ 属性类型均为java内置类型
@@ -33,14 +54,37 @@ POJO具有以下特点：
 ## 反射Pojo
 
 引入maven-jar包
-[code] 
-    <dependency>    <groupId>commons-beanutils</groupId>    <artifactId>commons-beanutils</artifactId>    <version>1.9.4</version></dependency>
-[/code]
+
+```xml
+<dependency>
+    <groupId>
+        commons-beanutils
+    </groupId>
+    <artifactId>
+        commons-beanutils
+    </artifactId>
+    <version>
+        1.9.4
+    </version>
+</dependency>
+```
 
 使用如下方法来反射EmployeePojo的属性：
-[code] 
-    class EmployeePojoTest {    @Test    void inspectProperties() {        // 反射EmployeePojo的属性        List<String> propertyNames =                Arrays.stream(PropertyUtils.getPropertyDescriptors(EmployeePojo.class))                        .sequential()                        .map(PropertyDescriptor::getDisplayName)                        .collect(Collectors.toList());         // 打印反射的结果        System.out.println(propertyNames);         // 打印的结果总归还需要眼睛来看，而使用断言则不需要眼睛来看控制台，且更规范        assertEquals(1, propertyNames.size());        assertEquals("start", propertyNames.get(0));    }}
-[/code]
+
+```java
+class EmployeePojoTest {
+    @Test
+    void inspectProperties() {
+        // 反射EmployeePojo的属性        List<String> propertyNames =
+        Arrays.stream(PropertyUtils.getPropertyDescriptors(EmployeePojo.class))                        .sequential()                        .map(PropertyDescriptor::getDisplayName)                        .collect(Collectors.toList());
+        // 打印反射的结果
+        System.out.println(propertyNames);
+        // 打印的结果总归还需要眼睛来看，而使用断言则不需要眼睛来看控制台，且更规范        assertEquals(1,
+        propertyNames.size());
+        assertEquals("start", propertyNames.get(0));
+    }
+}
+```
 
 可见对EmpoyeePojo进行反射后并**未** 获取到其它两个属性：firstName、lastName。
 
@@ -56,16 +100,64 @@ JavaBean**原则上** 也是一个POJO，相较于POJO它还需要遵循以下�
   * 可(反)序列化：必须实现 _Serializable_ 接口（该接口中未定义任何方法，作用仅为标识class是否可(反)序列化。
 
 
-[code] 
-    package po;import java.util.Date;public class User {    //属性名要和数据库表的字段对应    private int id;    private String username;// 用户姓名    private String sex;// 性别    private Date birthday;// 生日    private String address;// 地址    public int getId() {        return id;    }    public void setId(int id) {        this.id = id;    }    public String getUsername() {        return username;    }    public void setUsername(String username) {        this.username = username;    }    public String getSex() {        return sex;    }    public void setSex(String sex) {        this.sex = sex;    }    public Date getBirthday() {        return birthday;    }    public void setBirthday(Date birthday) {        this.birthday = birthday;    }    public String getAddress() {        return address;    }    public void setAddress(String address) {        this.address = address;    }    @Override    public String toString() {        return "User [id=" + id + ", username=" + username + ", sex=" + sex                + ", birthday=" + birthday + ", address=" + address + "]";    }}
-[/code]
+```java
+package po;
+import java.util.Date;
+public class User {
+    //属性名要和数据库表的字段对应
+    private int id;
+    private String username;
+    // 用户姓名
+    private String sex;
+    // 性别
+    private Date birthday;
+    // 生日
+    private String address;
+    // 地址
+    public int getId() {
+        return id;
+    }
+    public void setId(int id) {
+        this.id = id;
+    }
+    public String getUsername() {
+        return username;
+    }
+    public void setUsername(String username) {
+        this.username = username;
+    }
+    public String getSex() {
+        return sex;
+    }
+    public void setSex(String sex) {
+        this.sex = sex;
+    }
+    public Date getBirthday() {
+        return birthday;
+    }
+    public void setBirthday(Date birthday) {
+        this.birthday = birthday;
+    }
+    public String getAddress() {
+        return address;
+    }
+    public void setAddress(String address) {
+        this.address = address;
+    }
+    @Override
+    public String toString() {
+        return "User [id=" + id + ", username=" + username + ", sex=" + sex                + ", birthday=" + birthday + ", address=" + address + "]";
+    }
+}
+```
 
 ### 反射JavaBean
 
 使用同样的代码来反射EmployeeBean，则得到如下结果：
-[code] 
-    [firstName, lastName, startDate]
-[/code]
+
+```java
+[firstName, lastName, startDate]
+```
 
 ## 权衡利弊
 

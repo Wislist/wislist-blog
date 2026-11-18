@@ -1,8 +1,13 @@
 ---
 title: "SpringAOP"
 date: 2024-04-09 00:00:00
-tags: []
-categories: []
+
+categories:
+  - 框架
+tags:
+  - Spring
+  - AOP
+  - 动态代理
 ---
 
 # SpringAOP
@@ -65,9 +70,21 @@ AOP面向切面编程的一些优势：
 ### 通知类型
 
 一种功能最为强大的通知类型：Around环绕通知。
-[code] 
-    @Around("execution(* com.itheima.service.*.*(..))")public Object recordTime(ProceedingJoinPoint pjp) throws Throwable {    //记录方法执行开始时间    long begin = System.currentTimeMillis();    //执行原始方法    Object result = pjp.proceed();    //记录方法执行结束时间    long end = System.currentTimeMillis();    //计算方法执行耗时    log.info(pjp.getSignature()+"执行耗时: {}毫秒",end-begin);    return result;}
-[/code]
+
+```java
+@Around("execution(* com.itheima.service.*.*(..))")
+public Object recordTime(ProceedingJoinPoint pjp) throws Throwable {
+    //记录方法执行开始时间
+    long begin = System.currentTimeMillis();
+    //执行原始方法    Object result =
+    pjp.proceed();
+    //记录方法执行结束时间
+    long end = System.currentTimeMillis();
+    //计算方法执行耗时
+    log.info(pjp.getSignature()+"执行耗时: {}毫秒",end-begin);
+    return result;
+}
+```
 
 Spring中AOP的通知类型：
 
