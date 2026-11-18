@@ -27,7 +27,7 @@
     "hexo-server": "^3.0.0",
     "hexo-theme-landscape": "^1.0.0",
     "moment-timezone": "^0.6.2",
-    "notion-to-md": "^3.1.9"
+    "notion-to-md": "^3.1.10"
   },
   "pnpm": {
     "onlyBuiltDependencies": [
