@@ -115,3 +115,146 @@ figure.highlight
   opacity .7
   font-size 12px
 
+
+// Twikoo 的历史表情经过服务端清洗后可能没有 class，用表情 alt 标记一并匹配。
+#twikoo
+  .tk-content
+    font-size 15px
+    line-height 1.75
+    overflow-wrap anywhere
+    word-break normal
+
+    p
+      margin 0 0 .6em
+
+    img
+      max-width 100%
+      height auto
+
+    img.tk-owo-emotion, img.vemoji, img[alt^=':'][alt$=':']
+      display inline-block
+      width 1.5em
+      height 1.5em
+      max-width 1.5em
+      max-height 1.5em
+      margin 0 .08em
+      vertical-align -.3em
+      object-fit contain
+
+  .tk-preview img.tk-owo-emotion, .tk-preview img[alt^=':'][alt$=':']
+    display inline-block
+    width 1.5em
+    height 1.5em
+    margin 0 .08em
+    vertical-align -.3em
+
+  .tk-comment
+    margin-top 20px
+
+    &:target
+      outline 2px solid var(--link-color)
+      outline-offset 6px
+      border-radius 4px
+
+  .tk-row
+    gap 8px
+
+  .tk-meta
+    display flex
+    align-items baseline
+    flex-wrap wrap
+    gap 4px 8px
+
+  .tk-time
+    margin-left 0
+
+  .tk-action-link
+    border-bottom 0
+
+  .tk-extras
+    font-size 11px
+    opacity .7
+
+  .tk-replies
+    margin-top 14px
+    padding-left 18px
+    border-left 2px solid rgba(144, 147, 153, .35)
+
+    > .tk-comment
+      margin-top 16px
+
+      &:first-child
+        margin-top 0
+
+    .tk-content > span:first-child:has(.tk-ruser)
+      display block
+      margin-bottom 6px
+      font-size 12px
+      color var(--link-color)
+
+    .tk-ruser
+      font-weight 600
+      border-bottom 0
+
+  .tk-footer
+    display none
+
+.site-tools
+  margin 10px auto 0
+  max-width 620px
+  font-size 12px
+  line-height 1.9
+
+  summary
+    cursor pointer
+    width fit-content
+    margin auto
+
+  p
+    margin 8px 0 0
+
+.footer-hitokoto
+  margin 0 auto 18px
+  max-width 620px
+  padding 0 12px
+  min-height 3.8em
+  font-size 14px
+  line-height 1.9
+  color var(--text-color)
+
+  &[hidden]
+    display none
+
+  .hitokoto-text
+    display grid
+    border-bottom 0
+    font inherit
+    color inherit
+
+  .hitokoto-measure, .hitokoto-typed
+    grid-area 1 / 1
+    min-width 0
+    overflow-wrap anywhere
+
+  .hitokoto-measure
+    visibility hidden
+
+  .hitokoto-typed::after
+    content ''
+    display inline-block
+    width 1px
+    height 1em
+    margin-left 3px
+    background currentColor
+    vertical-align -.12em
+
+@media (prefers-reduced-motion: reduce)
+  .footer-hitokoto .hitokoto-typed::after
+    display none
+
+@media (max-width: 767px)
+  #twikoo .tk-replies
+    padding-left 10px
+
+  #twikoo .tk-comment > .tk-avatar
+    margin-right 10px

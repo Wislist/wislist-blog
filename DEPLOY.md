@@ -74,3 +74,10 @@ Pages 项目 → **Custom domains** → 添加域名，按提示在 DNS 加记�
 - `_config.yml` 里 `deploy:` 段（hexo-deployer-git 推 GitHub Pages）保留着当 fallback，走 Pages 后不会自动执行，无副作用。
 - 更新 NexT 主题：因为 `.git` 已移除，不能 `git pull`。重新下载新版本后覆盖 `themes/next`，自己的配置都在根目录 `_config.next.yml`，不会丢。
 - 需要给静态资源加缓存头时，在 `source/` 放 `_headers` 无效（Hexo 会跳过 `_` 开头的文件），得在 `scripts/` 里写生成钩子把文件写到 `public/`。
+
+## 评论与页脚定制
+
+- `source/_data/styles.styl` 控制 Twikoo 行内表情、回复竖线和父评论定位高亮；历史无 class 的表情也按 `:表情名:` 的 alt 标记匹配，不改变普通配图。
+- 评论区隐藏 Twikoo 默认署名，技术与服务链接统一位于 `source/_data/footer.njk`；通过 `_config.next.yml` 的 footer 注入，不修改主题或 Twikoo 压缩包。
+- `source/js/footer-hitokoto.js` 将一言放在版权上方：从左到右逐字显示，短暂停留后从右到左收回，再接续新句；没有轮换说明或操作按钮。仅在页脚可见且标签页在前台时继续动画，失败保留上一句；尊重系统减少动态效果设置，句子链接指向真实 UUID。
+- 本地样式出现旧缓存时使用 `npm run build -- --force --bail` 重新生成；浏览器验收需同时检查桌面、移动端和深浅色模式。
