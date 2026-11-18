@@ -37,7 +37,7 @@ export async function visitorRequest (request, env) {
     const url = new URL('https://api.open-meteo.com/v1/forecast')
     url.search = new URLSearchParams({
       latitude: Number(cf.latitude).toFixed(1), longitude: Number(cf.longitude).toFixed(1), timezone: 'auto',
-      current: 'temperature_2m,apparent_temperature,weather_code,is_day'
+      current: 'temperature_2m,apparent_temperature,weather_code,is_day,wind_speed_10m'
     }).toString()
     try {
       // Cache only provider weather, never a visitor's city or location metadata.
@@ -57,7 +57,7 @@ export async function visitorRequest (request, env) {
       result.localTime = result.localTime || current.time || ''
       result.weather = {
         temperature: current.temperature_2m, apparentTemperature: current.apparent_temperature,
-        code: current.weather_code, isDay: current.is_day === 1
+        code: current.weather_code, isDay: current.is_day === 1, windSpeed: current.wind_speed_10m
       }
       return json(result, headers)
     } catch (error) {

@@ -20,8 +20,7 @@
         const hour = typeof data.localTime === 'string' && data.localTime.match(/^\d{4}-\d{2}-\d{2}T(\d{2}):/);
         if (hour && Number(hour[1]) < 24) greet(Number(hour[1]));
         const location = [data.city, data.region, data.country].filter(part => typeof part === 'string' && part.trim());
-        setText('visitor-location', location.length ? location.join(' · ') + '（IP 估算）' : '暂时无法识别所在城市（IP 估算）');
-        setText('visitor-location-note', hour ? '问候依据访问者当地时间；位置由 IP 估算。' : '问候依据浏览器时间；位置由 IP 估算。');
+        setText('visitor-location', location.length ? location.join(' · ') : '位置暂不可用');
         const weather = data.weather;
         const descriptions = {
           0: '晴', 1: '大部晴朗', 2: '局部多云', 3: '阴',
@@ -32,15 +31,33 @@
           95: '雷暴', 96: '雷暴伴小冰雹', 99: '雷暴伴强冰雹'
         };
         if (!weather || !Number.isFinite(weather.temperature) || !Number.isFinite(weather.apparentTemperature)) {
-          setText('visitor-weather', '天气暂不可用，请稍后再访。');
+          setText('visitor-weather', '天气暂不可用');
+          setText('visitor-temperature', '—°');
+          setText('visitor-weather-detail', '');
         } else {
+          const windy = weather.windSpeed >= 39;
           const description = descriptions[weather.code] || '天气状况未知';
-          setText('visitor-weather', description + ' · ' + Math.round(weather.temperature) + '°C · 体感 ' + Math.round(weather.apparentTemperature) + '°C');
+          const cloud = '<path d="M18 47a12 12 0 0 1 1-24 18 18 0 0 1 34-1 13 13 0 1 1 7 25Z" fill="currentColor" fill-opacity=".12"/>';
+          const sun = '<circle cx="40" cy="36" r="15" fill="currentColor" fill-opacity=".18"/><path d="M40 9v5m0 44v5M13 36h5m44 0h5M21 17l4 4m30 30 4 4M21 55l4-4m30-30 4-4"/>';
+          let art = sun;
+          let kind = 'sun';
+          if (weather.code >= 95) { art = cloud + '<path d="m41 42-9 17h11l-7 15 20-23H44l7-9"/>'; kind = 'storm'; }
+          else if ([71,73,75,77,85,86].includes(weather.code)) { art = cloud + '<path d="M24 55v16m-7-12 14 8m0-8-14 8m37-12v16m-7-12 14 8m0-8-14 8"/>'; kind = 'snow'; }
+          else if (weather.code >= 51) { art = cloud + '<path d="m25 56-5 10m20-10-5 10m20-10-5 10"/>'; kind = 'rain'; }
+          else if ([45,48].includes(weather.code)) { art = cloud + '<path d="M15 57h50M23 65h34"/>'; kind = 'fog'; }
+          else if (windy) { art = '<path d="M9 29h44c15 0 15-19 3-19-6 0-9 4-9 8M9 41h55c13 0 13 18 2 18-6 0-8-4-8-7M9 53h24c13 0 13 17 2 17"/>'; kind = 'wind'; }
+          else if ([1,2,3].includes(weather.code)) { art = cloud; kind = 'cloud'; }
+          else if (!weather.isDay) { art = '<path d="M54 13a28 28 0 1 0 14 43A29 29 0 0 1 54 13Z" fill="currentColor" fill-opacity=".15"/>'; kind = 'night'; }
+          element('visitor-weather-icon').innerHTML = art;
+          element('visitor-weather-icon').setAttribute('data-weather', kind);
+          setText('visitor-temperature', Math.round(weather.temperature) + '°');
+          setText('visitor-weather', windy ? description + ' · 大风' : description);
+          setText('visitor-weather-detail', '体感 ' + Math.round(weather.apparentTemperature) + '°' + (Number.isFinite(weather.windSpeed) ? '  ·  风速 ' + Math.round(weather.windSpeed) + ' km/h' : ''));
         }
     }
 
     async function loadWeather() {
-      const key = 'wislist.weather.v1';
+      const key = 'wislist.weather.v2';
       const status = element('visitor-weather-status');
       try {
         const cached = JSON.parse(sessionStorage.getItem(key) || 'null');
@@ -67,7 +84,8 @@
       } catch (error) {
         setText('visitor-location', '暂时无法获取位置与天气。');
         setText('visitor-weather', '天气服务暂不可用。');
-        setText('visitor-location-note', '问候依据浏览器时间；不申请定位权限。');
+        setText('visitor-temperature', '—°');
+        setText('visitor-weather-detail', '');
       } finally {
         clearTimeout(timer);
         status.setAttribute('aria-busy', 'false');
