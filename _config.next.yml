@@ -26,10 +26,10 @@ sidebar:
 # ---------------------------------------------------------------
 menu:
   home: / || fa fa-home
-  archives: /archives/ || fa fa-archive
   categories: /categories/ || fa fa-layer-group
   tags: /tags/ || fa fa-tags
   资源收集: /resources/ || fa fa-bookmark
+  archives: /archives/ || fa fa-archive
   关于我: /about/ || fa fa-user
 
 menu_settings:
