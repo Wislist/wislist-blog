@@ -2,6 +2,17 @@
 
 评论数据存在 Cloudflare D1，游客填昵称即可评论，不需要登录。
 
+## 当前博客部署
+
+- Worker：`twikoo`，服务地址 `https://twikoo.wislist0721.workers.dev`。
+- D1：`twikoo`，已绑定为 `DB` 并初始化表结构。
+- 博客 `_config.next.yml` 的 `twikoo.env_id` 已配置服务地址，仅在允许评论的文章页加载。
+- 管理员密码已初始化；在文章评论区右下角的管理入口登录。密码不写入仓库。
+- 跨域安全域名为 `https://wislist.site`，本地开发地址也允许访问。
+- 服务端更新：在本目录执行 `npx wrangler deploy --minify`；博客配置更新仍需发布博客。
+- 服务端使用 `twikoo-func` 的 `getHtmlToText()` 提取最新评论纯文本，不再调用已移除的 `getCheerio()`。
+
+
 在**你自己的终端**里执行下面命令（本机 npm 缓存权限、网络代理由你环境决定，比沙箱里顺畅）。
 
 ## 前置

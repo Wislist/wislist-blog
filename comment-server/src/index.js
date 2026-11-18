@@ -10,7 +10,7 @@ import xss from 'xss'
 // Cloudflare request.cf 地理信息 (每次请求更新，用于新评论提交)
 let currentRequestGeo = { ip: null, region: '' }
 import {
-  getCheerio,
+  getHtmlToText,
   getMd5,
   getSha256,
   getXml2js,
@@ -126,7 +126,7 @@ setCustomLibs({
   }
 })
 
-const $ = getCheerio()
+const htmlToText = getHtmlToText()
 const md5 = getMd5()
 const sha256 = getSha256()
 const xml2js = getXml2js()
@@ -1076,7 +1076,7 @@ async function getRecentComments (event) {
       mailMd5: getMailMd5(comment),
       link: comment.link,
       comment: comment.comment,
-      commentText: $(comment.comment).text(),
+      commentText: htmlToText(comment.comment),
       created: comment.created
     })
 

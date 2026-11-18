@@ -10,7 +10,7 @@
 </script>
 
 {# ===== Twikoo 评论区（仅文章页，env_id 为空时不加载） ===== #}
-{% if theme.twikoo and theme.twikoo.enable and theme.twikoo.env_id %}
+{% if page.layout == 'post' and page.comments and theme.twikoo and theme.twikoo.enable and theme.twikoo.env_id %}
 <style>
   .post-comments {
     margin-top: 2em;

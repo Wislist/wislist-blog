@@ -123,4 +123,4 @@ utterances:
 # ---------------------------------------------------------------
 twikoo:
   enable: true
-  env_id: ""   # 例：https://twikoo.xxxx.workers.dev
+  env_id: "https://twikoo.wislist0721.workers.dev"
