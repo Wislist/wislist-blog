@@ -1,0 +1,7 @@
+{
+  "clipboardImagePaste.imageDirectory": "source/_posts/assets",
+  "clipboardImagePaste.imageNameFormat": "screenshot-{timestamp}",
+  "clipboardImagePaste.imageFormat": "png",
+  "clipboardImagePaste.promptForAltText": true,
+  "clipboardImagePaste.insertMode": "markdown"
+}

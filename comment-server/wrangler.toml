@@ -9,16 +9,7 @@ compatibility_date = "2024-09-23"
 [[d1_databases]]
 binding = "DB"
 database_name = "twikoo"
-database_id = "REPLACE_WITH_YOUR_D1_ID"
-
-# 图片上传用（不做图片上传可以删掉这 3 行，同时删掉 SETUP 里的 r2 命令）
-[[r2_buckets]]
-binding = "R2"
-bucket_name = "twikoo"
-
-[vars]
-# R2 公开访问地址；暂不做图片上传可留空
-R2_PUBLIC_URL = ""
+database_id = "91633fc9-0fd7-4c6d-b224-d8ef3364ba2f"
 
 [dev]
 port = 5000
