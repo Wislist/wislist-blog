@@ -75,6 +75,10 @@ Pages 项目 → **Custom domains** → 添加域名，按提示在 DNS 加记�
 - 更新 NexT 主题：因为 `.git` 已移除，不能 `git pull`。重新下载新版本后覆盖 `themes/next`，自己的配置都在根目录 `_config.next.yml`，不会丢。
 - 需要给静态资源加缓存头时，在 `source/` 放 `_headers` 无效（Hexo 会跳过 `_` 开头的文件），得在 `scripts/` 里写生成钩子把文件写到 `public/`。
 
+## 文章图片
+
+文章配图放到 `source/images/posts/`，在 Markdown 中使用 `![说明](/images/posts/文件名.webp)`，将图片与文章一起提交。当前关闭了 `post_asset_folder`，`source/_posts/img/` 或 `source/_posts/assets/` 里的图片不会作为静态资源发布。
+
 ## 评论与页脚定制
 
 - `source/_data/styles.styl` 控制 Twikoo 行内表情、回复竖线和父评论定位高亮；历史无 class 的表情也按 `:表情名:` 的 alt 标记匹配，不改变普通配图。
